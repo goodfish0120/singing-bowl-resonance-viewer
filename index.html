@@ -31,7 +31,7 @@ button{font:inherit}
 .tunerMeta{position:absolute;left:14px;right:14px;bottom:12px;display:flex;align-items:end;gap:8px;color:var(--muted);font-size:11px}.clipWarn{color:var(--red);font-weight:780;opacity:0;transition:.2s}.clipWarn.show{opacity:1}.sustainBadge{margin-left:auto;color:#e2e8f0;font-weight:780;font-variant-numeric:tabular-nums}
 .enableTap{position:absolute;left:50%;bottom:50px;transform:translateX(-50%);z-index:5;display:flex;flex-direction:column;align-items:center;gap:7px;pointer-events:none}.enableBtn{pointer-events:auto;border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:12px 18px;background:rgba(248,250,252,.96);color:#020617;font-weight:860;box-shadow:0 14px 40px rgba(0,0,0,.32)}.enableNote{font-size:11px;color:var(--muted);background:rgba(2,6,23,.55);border:1px solid rgba(148,163,184,.14);border-radius:999px;padding:5px 9px}.enableTap.hidden{display:none}
 .spectrumCard{height:clamp(118px,22svh,180px);border:1px solid rgba(148,163,184,.16);border-radius:22px;background:linear-gradient(180deg,rgba(13,22,34,.95),rgba(2,6,23,.98));overflow:hidden;position:relative}.spectrumCanvas{width:100%;height:100%;display:block}.spectrumTitle{position:absolute;left:12px;top:9px;color:rgba(219,234,254,.82);font-size:10px;letter-spacing:.12em;text-transform:uppercase;font-weight:800}.spectrumHint{position:absolute;right:12px;top:9px;color:rgba(145,163,184,.82);font-size:10px;font-variant-numeric:tabular-nums}.scrollCue{text-align:center;color:var(--muted);font-size:11px;margin-top:-2px;letter-spacing:.06em}
-.fingerprintSection{min-height:100svh;padding:calc(env(safe-area-inset-top) + 14px) 10px calc(env(safe-area-inset-bottom) + 18px);display:flex;flex-direction:column;gap:10px;background:linear-gradient(180deg,#05070a,#020617)}.sectionHeader{display:flex;align-items:end;gap:10px}.sectionTitle{font-size:18px;font-weight:860;letter-spacing:-.02em;color:#e5eefb}.sectionSub{margin-left:auto;text-align:right;color:var(--muted);font-size:11px;line-height:1.3;font-variant-numeric:tabular-nums}.fingerPanel{flex:1;min-height:300px;border:1px solid rgba(148,163,184,.18);border-radius:22px;background:linear-gradient(180deg,rgba(15,23,42,.92),rgba(2,6,23,.98));padding:10px;display:flex;flex-direction:column;gap:10px}.graphWrap{position:relative;flex:1;min-height:240px;border-radius:16px;background:rgba(2,6,23,.55);border:1px solid rgba(148,163,184,.12);overflow:hidden}.graphCanvas{width:100%;height:100%;display:block}.dataGrid{display:grid;grid-template-columns:1fr;gap:8px}.dataBox{border:1px solid rgba(148,163,184,.14);background:rgba(15,23,42,.62);border-radius:15px;padding:10px 11px;min-width:0}.dataTitle{font-size:10px;color:var(--muted);letter-spacing:.14em;text-transform:uppercase;font-weight:780;margin-bottom:6px}.dataLine{font-size:12px;line-height:1.48;font-variant-numeric:tabular-nums;color:#e5eefb;word-break:break-word}.dataLine.muted{color:var(--muted)}.peakCount{font-size:32px;line-height:1;font-weight:860;color:#f8fafc;margin-right:7px}.peakCountLine{display:flex;align-items:baseline;color:var(--muted);font-size:12px}
+.fingerprintSection{min-height:100svh;padding:calc(env(safe-area-inset-top) + 14px) 10px calc(env(safe-area-inset-bottom) + 18px);display:flex;flex-direction:column;gap:10px;background:linear-gradient(180deg,#05070a,#020617)}.sectionHeader{display:flex;align-items:end;gap:10px}.sectionTitle{font-size:18px;font-weight:860;letter-spacing:-.02em;color:#e5eefb}.sectionActions{margin-left:auto;display:flex;align-items:center;gap:8px}.refreshBtn{border:1px solid rgba(125,211,252,.32);border-radius:999px;padding:8px 11px;background:rgba(15,23,42,.78);color:#e0f2fe;font-size:11px;font-weight:820;letter-spacing:.03em;box-shadow:inset 0 1px 0 rgba(255,255,255,.05)}.refreshBtn:active{transform:translateY(1px);background:rgba(14,165,233,.18)}.sectionSub{text-align:right;color:var(--muted);font-size:11px;line-height:1.3;font-variant-numeric:tabular-nums}.fingerPanel{flex:1;min-height:300px;border:1px solid rgba(148,163,184,.18);border-radius:22px;background:linear-gradient(180deg,rgba(15,23,42,.92),rgba(2,6,23,.98));padding:10px;display:flex;flex-direction:column;gap:10px}.graphWrap{position:relative;flex:1;min-height:240px;border-radius:16px;background:rgba(2,6,23,.55);border:1px solid rgba(148,163,184,.12);overflow:hidden}.graphCanvas{width:100%;height:100%;display:block}.dataGrid{display:grid;grid-template-columns:1fr;gap:8px}.dataBox{border:1px solid rgba(148,163,184,.14);background:rgba(15,23,42,.62);border-radius:15px;padding:10px 11px;min-width:0}.dataTitle{font-size:10px;color:var(--muted);letter-spacing:.14em;text-transform:uppercase;font-weight:780;margin-bottom:6px}.dataLine{font-size:12px;line-height:1.48;font-variant-numeric:tabular-nums;color:#e5eefb;word-break:break-word}.dataLine.muted{color:var(--muted)}.peakCount{font-size:32px;line-height:1;font-weight:860;color:#f8fafc;margin-right:7px}.peakCountLine{display:flex;align-items:baseline;color:var(--muted);font-size:12px}
 @media (min-width:760px) and (orientation:landscape){
   .hero{padding-left:14px;padding-right:14px}.tunerStage{display:grid;grid-template-columns:1.2fr .8fr;grid-template-rows:1fr;align-items:stretch}.tunerCard{min-height:0}.spectrumCard{height:auto}.fingerprintSection{padding-left:14px;padding-right:14px}.dataGrid{grid-template-columns:.55fr 1fr 1.1fr}.fingerPanel{min-height:520px}
 }
@@ -73,29 +73,32 @@ button{font:inherit}
         <div id="spectrumHint" class="spectrumHint">45 Hz–5 kHz</div>
       </div>
     </section>
-    <div class="scrollCue">Scroll for fingerprint · 5–15 s window</div>
+    <div class="scrollCue">向下查看指紋 · 5–15 秒穩定段</div>
   </main>
   <section class="fingerprintSection" id="fingerprintSection">
     <div class="sectionHeader">
       <div>
-        <div class="sectionTitle">Singing bowl fingerprint</div>
-        <div class="dataLine muted" id="windowInfo">Waiting for hit</div>
+        <div class="sectionTitle">頌缽指紋</div>
+        <div class="dataLine muted" id="windowInfo">等待敲擊</div>
       </div>
-      <div class="sectionSub">median<br>P20 / P90</div>
+      <div class="sectionActions">
+        <button id="refreshFingerprintBtn" class="refreshBtn" type="button">下一顆</button>
+        <div class="sectionSub">典型頻譜<br>穩定範圍</div>
+      </div>
     </div>
     <div class="fingerPanel">
       <div class="graphWrap"><canvas id="graphCanvas" class="graphCanvas"></canvas></div>
       <div class="dataGrid">
         <div class="dataBox">
-          <div class="dataTitle">Clear peaks</div>
-          <div class="peakCountLine"><span id="peakCount" class="peakCount">--</span><span>visible main resonance peaks</span></div>
+          <div class="dataTitle">明顯泛音</div>
+          <div class="peakCountLine"><span id="peakCount" class="peakCount">--</span><span>個明顯主共鳴峰</span></div>
         </div>
         <div class="dataBox">
-          <div class="dataTitle">Peaks Hz</div>
+          <div class="dataTitle">泛音頻率 Hz</div>
           <div id="peaksHz" class="dataLine">--</div>
         </div>
         <div class="dataBox">
-          <div class="dataTitle">Ratio / octave position</div>
+          <div class="dataTitle">倍率 / 倍頻位置</div>
           <div id="peaksRatio" class="dataLine">--</div>
         </div>
       </div>
@@ -127,6 +130,7 @@ button{font:inherit}
   const peaksHzEl = document.getElementById('peaksHz');
   const peaksRatioEl = document.getElementById('peaksRatio');
   const spectrumHint = document.getElementById('spectrumHint');
+  const refreshFingerprintBtn = document.getElementById('refreshFingerprintBtn');
 
   const MIN_FREQ = 45;
   const MAX_FREQ = 5000;
@@ -167,6 +171,7 @@ button{font:inherit}
   let clippedUntil = 0;
 
   enableBtn.addEventListener('click', start);
+  refreshFingerprintBtn.addEventListener('click', resetForNextBowl);
   window.addEventListener('resize', () => {
     drawMeter();
     drawLiveSpectrum();
@@ -288,8 +293,26 @@ button{font:inherit}
     peakCountEl.textContent = '--';
     peaksHzEl.textContent = '--';
     peaksRatioEl.textContent = '--';
-    windowInfo.textContent = 'Hit detected · collecting 5–15 s';
+    windowInfo.textContent = '已偵測敲擊 · 收集 5–15 秒穩定段';
     statusEl.textContent = 'Hit detected';
+  }
+
+  function resetForNextBowl() {
+    sessionStart = 0;
+    sessionPeakDb = -Infinity;
+    stableFrames = [];
+    lockFrames = [];
+    fingerprint = null;
+    sustainSeconds = null;
+    lockedF0 = null;
+    lastFingerprintAt = 0;
+    peakCountEl.textContent = '--';
+    peaksHzEl.textContent = '--';
+    peaksRatioEl.textContent = '--';
+    windowInfo.textContent = '已準備好下一顆';
+    sustainBadge.textContent = 'Sustain -- s';
+    statusEl.textContent = running ? 'Listening' : 'Tap to enable';
+    drawFingerprint();
   }
 
   function copySpectrum(src) { return new Float32Array(src); }
@@ -436,13 +459,13 @@ button{font:inherit}
   function updateWindowInfo(t) {
     if (t < FINGER_START) {
       statusEl.textContent = 'Listening';
-      windowInfo.textContent = 'Collecting · fingerprint starts at 5 s';
+      windowInfo.textContent = '收集中 · 5 秒後開始建立指紋';
     } else if (t <= FINGER_END) {
       statusEl.textContent = 'Analyzing';
-      windowInfo.textContent = 'Analyzing ' + t.toFixed(1) + ' s · 5–15 s window';
+      windowInfo.textContent = '分析中 ' + t.toFixed(1) + ' 秒 · 5–15 秒穩定段';
     } else {
       statusEl.textContent = fingerprint ? 'Fingerprint ready' : 'Ready';
-      windowInfo.textContent = fingerprint ? 'Fingerprint ready · latest hit' : 'Waiting for usable tail';
+      windowInfo.textContent = fingerprint ? '指紋完成 · 最近一次敲擊' : '等待可用尾音';
     }
   }
 
@@ -540,7 +563,7 @@ button{font:inherit}
     if (!fingerprint) {
       graphCtx.fillStyle = 'rgba(148,163,184,.72)';
       graphCtx.font = '12px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif';
-      graphCtx.fillText('Waiting for 5–15 s resonance window', m.l + 8, m.t + 22);
+      graphCtx.fillText('等待 5–15 秒穩定共鳴段', m.l + 8, m.t + 22);
       return;
     }
 
@@ -665,8 +688,8 @@ button{font:inherit}
     peaksHzEl.textContent = shown.map(p => formatHz(p.freq)).join(' / ');
     peaksRatioEl.textContent = shown.map(p => {
       const r = p.ratio ? '×' + p.ratio.toFixed(2) : '×--';
-      const pos = Number.isFinite(p.octavePosition) ? p.octavePosition.toFixed(2) : '--';
-      return r + ' · pos ' + pos;
+      const 位置 = Number.isFinite(p.octavePosition) ? p.octavePosition.toFixed(2) : '--';
+      return r + ' · 位置 ' + pos;
     }).join(' / ');
   }
 
