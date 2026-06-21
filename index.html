@@ -3,774 +3,696 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>頌缽共鳴線</title>
+<title>Singing Bowl Resonance Tuner</title>
 <style>
-  :root {
-    --bg: #08090b;
-    --panel: rgba(18, 20, 24, .86);
-    --text: #f4f4f5;
-    --muted: #9ca3af;
-    --accent: #f59e0b;
-  }
-  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  html, body {
-    margin: 0;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    background: var(--bg);
-    color: var(--text);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  }
-  #app {
-    position: fixed;
-    inset: 0;
-    display: flex;
-    flex-direction: column;
-    padding: env(safe-area-inset-top) 10px env(safe-area-inset-bottom);
-  }
-  header {
-    height: 54px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    z-index: 2;
-  }
-  .title {
-    font-size: 16px;
-    font-weight: 650;
-    letter-spacing: .02em;
-    white-space: nowrap;
-  }
-  .spacer { flex: 1; }
-  .seg {
-    display: inline-flex;
-    border: 1px solid rgba(255,255,255,.18);
-    border-radius: 999px;
-    overflow: hidden;
-    background: rgba(255,255,255,.05);
-  }
-  .seg button {
-    appearance: none;
-    border: 0;
-    padding: 8px 12px;
-    background: transparent;
-    color: var(--muted);
-    font-weight: 650;
-    font-size: 14px;
-  }
-  .seg button.active { background: rgba(255,255,255,.18); color: #fff; }
-  #status {
-    font-size: 12px;
-    color: var(--muted);
-    text-align: right;
-    min-width: 92px;
-    white-space: nowrap;
-  }
-  #stage {
-    position: relative;
-    flex: 1;
-    min-height: 0;
-    border-radius: 18px;
-    overflow: hidden;
-    background: radial-gradient(circle at top left, #151923 0%, #08090b 55%);
-    border: 1px solid rgba(255,255,255,.10);
-  }
-  canvas { width: 100%; height: 100%; display: block; }
-  #startLayer {
-    position: absolute;
-    inset: 0;
-    z-index: 5;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 24px;
-    background: linear-gradient(180deg, rgba(8,9,11,.94), rgba(8,9,11,.76));
-  }
-  .card {
-    width: min(520px, 92vw);
-    border-radius: 24px;
-    padding: 22px;
-    background: var(--panel);
-    border: 1px solid rgba(255,255,255,.12);
-    box-shadow: 0 20px 80px rgba(0,0,0,.45);
-  }
-  .card h1 { margin: 0 0 10px; font-size: 22px; line-height: 1.2; }
-  .card p { margin: 0 0 16px; color: var(--muted); line-height: 1.55; font-size: 14px; }
-  #startBtn {
-    width: 100%;
-    border: 0;
-    border-radius: 18px;
-    padding: 15px 18px;
-    background: #f4f4f5;
-    color: #111;
-    font-size: 17px;
-    font-weight: 750;
-  }
-  #hint {
-    margin-top: 12px;
-    min-height: 20px;
-    color: #fca5a5;
-    font-size: 13px;
-    line-height: 1.45;
-  }
+:root{
+  --bg:#05070a;
+  --card:#0a1018;
+  --card2:#0d1622;
+  --text:#f8fafc;
+  --muted:#91a3b8;
+  --dim:#536274;
+  --line:#34d399;
+  --line2:#7dd3fc;
+  --yellow:#facc15;
+  --red:#fb7185;
+  --grid:rgba(148,163,184,.16);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+body{overflow-x:hidden}
+button{font:inherit}
+#app{min-height:100%;background:radial-gradient(circle at 50% -10%,rgba(52,211,153,.12),transparent 34%),var(--bg)}
+.hero{min-height:100svh;display:flex;flex-direction:column;padding:calc(env(safe-area-inset-top) + 10px) 10px calc(env(safe-area-inset-bottom) + 10px);gap:10px}
+.topbar{height:30px;display:flex;align-items:center;gap:10px;color:var(--muted);font-size:11px;letter-spacing:.08em;text-transform:uppercase;font-weight:760}.brand{color:#dbeafe;white-space:nowrap}.spacer{flex:1}.status{color:var(--line);text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+.tunerStage{position:relative;flex:1;min-height:0;display:flex;flex-direction:column;gap:10px}
+.tunerCard{position:relative;flex:1;min-height:310px;border:1px solid rgba(148,163,184,.18);border-radius:24px;background:linear-gradient(180deg,rgba(15,23,42,.92),rgba(2,6,23,.98));box-shadow:inset 0 1px 0 rgba(255,255,255,.04),0 18px 70px rgba(0,0,0,.28);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:18px 14px;overflow:hidden}
+.readout{width:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}.smallLabel{font-size:11px;color:var(--muted);letter-spacing:.18em;text-transform:uppercase;font-weight:780}.freq{font-size:clamp(76px,28vw,145px);line-height:.9;font-weight:880;letter-spacing:-.085em;font-variant-numeric:tabular-nums;text-shadow:0 0 38px rgba(52,211,153,.12)}.freq .unit{font-size:.2em;letter-spacing:.02em;color:var(--muted);margin-left:8px;font-weight:760}.note{font-size:clamp(30px,10.5vw,58px);line-height:1.05;font-weight:840;letter-spacing:-.035em;color:#e2e8f0;font-variant-numeric:tabular-nums}.note .cents{color:var(--muted);font-weight:740;margin-left:10px}.meter{width:min(620px,94%);height:112px;margin-top:12px;position:relative}.meterCanvas{width:100%;height:100%;display:block}.meterLabels{position:absolute;left:0;right:0;bottom:1px;display:flex;justify-content:space-between;color:var(--dim);font-size:10px;font-weight:680;padding:0 10px;pointer-events:none}.meterCenter{position:absolute;left:50%;top:0;bottom:12px;width:1px;background:rgba(255,255,255,.36);box-shadow:0 0 12px rgba(255,255,255,.18)}
+.tunerMeta{position:absolute;left:14px;right:14px;bottom:12px;display:flex;align-items:end;gap:8px;color:var(--muted);font-size:11px}.clipWarn{color:var(--red);font-weight:780;opacity:0;transition:.2s}.clipWarn.show{opacity:1}.sustainBadge{margin-left:auto;color:#e2e8f0;font-weight:780;font-variant-numeric:tabular-nums}
+.enableTap{position:absolute;left:50%;bottom:50px;transform:translateX(-50%);z-index:5;display:flex;flex-direction:column;align-items:center;gap:7px;pointer-events:none}.enableBtn{pointer-events:auto;border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:12px 18px;background:rgba(248,250,252,.96);color:#020617;font-weight:860;box-shadow:0 14px 40px rgba(0,0,0,.32)}.enableNote{font-size:11px;color:var(--muted);background:rgba(2,6,23,.55);border:1px solid rgba(148,163,184,.14);border-radius:999px;padding:5px 9px}.enableTap.hidden{display:none}
+.spectrumCard{height:clamp(118px,22svh,180px);border:1px solid rgba(148,163,184,.16);border-radius:22px;background:linear-gradient(180deg,rgba(13,22,34,.95),rgba(2,6,23,.98));overflow:hidden;position:relative}.spectrumCanvas{width:100%;height:100%;display:block}.spectrumTitle{position:absolute;left:12px;top:9px;color:rgba(219,234,254,.82);font-size:10px;letter-spacing:.12em;text-transform:uppercase;font-weight:800}.spectrumHint{position:absolute;right:12px;top:9px;color:rgba(145,163,184,.82);font-size:10px;font-variant-numeric:tabular-nums}.scrollCue{text-align:center;color:var(--muted);font-size:11px;margin-top:-2px;letter-spacing:.06em}
+.fingerprintSection{min-height:100svh;padding:calc(env(safe-area-inset-top) + 14px) 10px calc(env(safe-area-inset-bottom) + 18px);display:flex;flex-direction:column;gap:10px;background:linear-gradient(180deg,#05070a,#020617)}.sectionHeader{display:flex;align-items:end;gap:10px}.sectionTitle{font-size:18px;font-weight:860;letter-spacing:-.02em;color:#e5eefb}.sectionSub{margin-left:auto;text-align:right;color:var(--muted);font-size:11px;line-height:1.3;font-variant-numeric:tabular-nums}.fingerPanel{flex:1;min-height:300px;border:1px solid rgba(148,163,184,.18);border-radius:22px;background:linear-gradient(180deg,rgba(15,23,42,.92),rgba(2,6,23,.98));padding:10px;display:flex;flex-direction:column;gap:10px}.graphWrap{position:relative;flex:1;min-height:240px;border-radius:16px;background:rgba(2,6,23,.55);border:1px solid rgba(148,163,184,.12);overflow:hidden}.graphCanvas{width:100%;height:100%;display:block}.dataGrid{display:grid;grid-template-columns:1fr;gap:8px}.dataBox{border:1px solid rgba(148,163,184,.14);background:rgba(15,23,42,.62);border-radius:15px;padding:10px 11px;min-width:0}.dataTitle{font-size:10px;color:var(--muted);letter-spacing:.14em;text-transform:uppercase;font-weight:780;margin-bottom:6px}.dataLine{font-size:12px;line-height:1.48;font-variant-numeric:tabular-nums;color:#e5eefb;word-break:break-word}.dataLine.muted{color:var(--muted)}.peakCount{font-size:32px;line-height:1;font-weight:860;color:#f8fafc;margin-right:7px}.peakCountLine{display:flex;align-items:baseline;color:var(--muted);font-size:12px}
+@media (min-width:760px) and (orientation:landscape){
+  .hero{padding-left:14px;padding-right:14px}.tunerStage{display:grid;grid-template-columns:1.2fr .8fr;grid-template-rows:1fr;align-items:stretch}.tunerCard{min-height:0}.spectrumCard{height:auto}.fingerprintSection{padding-left:14px;padding-right:14px}.dataGrid{grid-template-columns:.55fr 1fr 1.1fr}.fingerPanel{min-height:520px}
+}
+@media (max-height:680px){.freq{font-size:clamp(64px,22vw,116px)}.meter{height:90px}.tunerCard{min-height:260px}.spectrumCard{height:116px}.scrollCue{display:none}}
 </style>
 </head>
 <body>
 <div id="app">
-  <header>
-    <div class="title">頌缽共鳴線</div>
-    <div class="seg" aria-label="選擇線數">
-      <button data-lines="4">4</button>
-      <button data-lines="8" class="active">8</button>
-      <button data-lines="12">12</button>
+  <main class="hero" id="hero">
+    <div class="topbar">
+      <div class="brand">Advanced Tuner</div>
+      <div class="spacer"></div>
+      <div id="status" class="status">Tap to enable</div>
     </div>
-    <div class="spacer"></div>
-    <div id="status">等待啟動</div>
-  </header>
-  <main id="stage">
-    <canvas id="canvas"></canvas>
-    <div id="startLayer">
-      <div class="card">
-        <h1>即時聲音 → 共鳴線</h1>
-        <p>每次敲擊變大聲時，自動清圖、重新抓主頻，並鎖定最多 12 個穩定頻率。<br>不錄音、不存檔、不判斷好壞。</p>
-        <button id="startBtn">啟動麥克風</button>
-        <div id="hint"></div>
+    <section class="tunerStage">
+      <div class="tunerCard" id="tunerCard">
+        <div class="readout">
+          <div class="smallLabel">Fundamental</div>
+          <div class="freq"><span id="freqValue">--</span><span class="unit">Hz</span></div>
+          <div class="note"><span id="noteValue">--</span><span id="centValue" class="cents">--¢</span></div>
+          <div class="meter">
+            <canvas id="meterCanvas" class="meterCanvas"></canvas>
+            <div class="meterCenter"></div>
+            <div class="meterLabels"><span>-50¢</span><span>0</span><span>+50¢</span></div>
+          </div>
+        </div>
+        <div class="tunerMeta">
+          <span id="clipWarn" class="clipWarn">Too loud · move phone away</span>
+          <span class="sustainBadge" id="sustainBadge">Sustain -- s</span>
+        </div>
+        <div id="enableTap" class="enableTap">
+          <button id="enableBtn" class="enableBtn">Tap to enable tuner</button>
+          <div id="hint" class="enableNote">Browser will ask for microphone access</div>
+        </div>
+      </div>
+      <div class="spectrumCard">
+        <canvas id="liveSpectrumCanvas" class="spectrumCanvas"></canvas>
+        <div class="spectrumTitle">Live spectrum</div>
+        <div id="spectrumHint" class="spectrumHint">45 Hz–5 kHz</div>
+      </div>
+    </section>
+    <div class="scrollCue">Scroll for fingerprint · 5–15 s window</div>
+  </main>
+  <section class="fingerprintSection" id="fingerprintSection">
+    <div class="sectionHeader">
+      <div>
+        <div class="sectionTitle">Singing bowl fingerprint</div>
+        <div class="dataLine muted" id="windowInfo">Waiting for hit</div>
+      </div>
+      <div class="sectionSub">median<br>P20 / P90</div>
+    </div>
+    <div class="fingerPanel">
+      <div class="graphWrap"><canvas id="graphCanvas" class="graphCanvas"></canvas></div>
+      <div class="dataGrid">
+        <div class="dataBox">
+          <div class="dataTitle">Clear peaks</div>
+          <div class="peakCountLine"><span id="peakCount" class="peakCount">--</span><span>visible main resonance peaks</span></div>
+        </div>
+        <div class="dataBox">
+          <div class="dataTitle">Peaks Hz</div>
+          <div id="peaksHz" class="dataLine">--</div>
+        </div>
+        <div class="dataBox">
+          <div class="dataTitle">Ratio / octave position</div>
+          <div id="peaksRatio" class="dataLine">--</div>
+        </div>
       </div>
     </div>
-  </main>
+  </section>
 </div>
-
 <script>
 (() => {
   'use strict';
 
-  const canvas = document.getElementById('canvas');
-  const ctx = canvas.getContext('2d', { alpha: false });
-  const stage = document.getElementById('stage');
+  const meterCanvas = document.getElementById('meterCanvas');
+  const meterCtx = meterCanvas.getContext('2d', { alpha: true });
+  const liveSpectrumCanvas = document.getElementById('liveSpectrumCanvas');
+  const liveSpectrumCtx = liveSpectrumCanvas.getContext('2d', { alpha: false });
+  const graphCanvas = document.getElementById('graphCanvas');
+  const graphCtx = graphCanvas.getContext('2d', { alpha: false });
+
   const statusEl = document.getElementById('status');
-  const startLayer = document.getElementById('startLayer');
-  const startBtn = document.getElementById('startBtn');
+  const enableTap = document.getElementById('enableTap');
+  const enableBtn = document.getElementById('enableBtn');
   const hintEl = document.getElementById('hint');
-  const lineButtons = Array.from(document.querySelectorAll('[data-lines]'));
+  const freqValue = document.getElementById('freqValue');
+  const noteValue = document.getElementById('noteValue');
+  const centValue = document.getElementById('centValue');
+  const sustainBadge = document.getElementById('sustainBadge');
+  const clipWarn = document.getElementById('clipWarn');
+  const windowInfo = document.getElementById('windowInfo');
+  const peakCountEl = document.getElementById('peakCount');
+  const peaksHzEl = document.getElementById('peaksHz');
+  const peaksRatioEl = document.getElementById('peaksRatio');
+  const spectrumHint = document.getElementById('spectrumHint');
 
-  const VIEW_SECONDS = 30;
-  const DB_MIN = -60;
-  const DB_MAX = 0;
-  const MIN_FREQ = 70;
-  const MAX_FREQ = 10000;
-  const F0_MAX = 2500;
-  const CAPTURE_START = 0.30; // seconds after hit; avoids attack noise
-  const CAPTURE_END = 1.10;   // lock frequencies after this window
-  const HIT_REFRACTORY = 0.65;
-  const LOCKED_TRACKS_MAX = 12;
+  const MIN_FREQ = 45;
+  const MAX_FREQ = 5000;
+  const F0_MIN = 45;
+  const F0_MAX = 900;
+  const FFT_SIZE = 16384;
+  const HIT_REFRACTORY = 1.4;
+  const FINGER_START = 5.0;
+  const FINGER_END = 15.0;
+  const MAX_LIST_PEAKS = 8;
+  const MAX_ANALYZED_PEAKS = 16;
+  const DB_MIN = -95;
+  const DB_MAX = -10;
 
-  let lineCount = 8;
   let audioCtx = null;
   let analyser = null;
   let freqData = null;
   let timeData = null;
   let sampleRate = 44100;
-  let fftSize = 8192;
+  let binHz = 44100 / FFT_SIZE;
 
   let running = false;
   let sessionStart = 0;
-  let lastHit = -999;
-  let activeSession = false;
-  let f0 = null;
+  let lastHitTime = -999;
   let sessionPeakDb = -Infinity;
-  let rmsHistory = [];
-  let noiseFloorDb = -78;
-  let tracks = [];
-  let peakFrames = [];
-  let tracksLocked = false;
-  let nextTrackId = 1;
+  let noiseFloorDb = -82;
+  let rmsDb = -100;
+  let prevRmsDb = -100;
+  let liveF0 = null;
+  let lockedF0 = null;
+  let currentCents = 0;
+  let meterCents = 0;
+  let stableFrames = [];
+  let lockFrames = [];
+  let fingerprint = null;
+  let sustainSeconds = null;
+  let lastFingerprintAt = 0;
+  let clippedUntil = 0;
 
-  let width = 0, height = 0, dpr = 1;
-  const margin = { left: 46, right: 78, top: 18, bottom: 34 };
-
-  function resize() {
-    dpr = Math.max(1, Math.min(3, window.devicePixelRatio || 1));
-    const rect = stage.getBoundingClientRect();
-    width = Math.max(320, Math.floor(rect.width));
-    height = Math.max(320, Math.floor(rect.height));
-    canvas.width = Math.floor(width * dpr);
-    canvas.height = Math.floor(height * dpr);
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    draw();
-  }
-
-  window.addEventListener('resize', resize, { passive: true });
-  window.addEventListener('orientationchange', () => setTimeout(resize, 250), { passive: true });
-  resize();
-
-  lineButtons.forEach(btn => {
-    btn.addEventListener('click', () => {
-      lineCount = Number(btn.dataset.lines);
-      lineButtons.forEach(b => b.classList.toggle('active', b === btn));
-      draw();
-    });
-  });
-
-  startBtn.addEventListener('click', start);
+  enableBtn.addEventListener('click', start);
+  window.addEventListener('resize', () => {
+    drawMeter();
+    drawLiveSpectrum();
+    drawFingerprint();
+  }, { passive: true });
 
   async function start() {
-    hintEl.textContent = '';
-
+    hintEl.textContent = 'Requesting microphone…';
     if (!window.isSecureContext) {
-      hintEl.textContent = 'iPhone 上通常需要用 HTTPS 網址開啟，不能用普通 http。';
+      hintEl.textContent = 'iOS / Safari needs HTTPS for microphone access.';
       return;
     }
-
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-      hintEl.textContent = '這個瀏覽器拿不到麥克風。請用 iPhone Safari 開啟。';
+      hintEl.textContent = 'This browser does not provide microphone access.';
       return;
     }
-
     try {
       audioCtx = new (window.AudioContext || window.webkitAudioContext)({ latencyHint: 'interactive' });
-      await audioCtx.resume();
-
-      let stream;
-      try {
-        stream = await navigator.mediaDevices.getUserMedia({
-          audio: {
-            echoCancellation: false,
-            noiseSuppression: false,
-            autoGainControl: false
-          },
-          video: false
-        });
-      } catch (e) {
-        stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
-      }
-
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          echoCancellation: false,
+          noiseSuppression: false,
+          autoGainControl: false,
+          channelCount: 1
+        }
+      });
+      if (audioCtx.state === 'suspended') await audioCtx.resume();
       const source = audioCtx.createMediaStreamSource(stream);
       analyser = audioCtx.createAnalyser();
-      analyser.fftSize = fftSize;
-      analyser.smoothingTimeConstant = 0.06;
-      analyser.minDecibels = -105;
-      analyser.maxDecibels = -10;
+      analyser.fftSize = FFT_SIZE;
+      analyser.smoothingTimeConstant = 0.54;
+      analyser.minDecibels = -110;
+      analyser.maxDecibels = -5;
       source.connect(analyser);
-
-      sampleRate = audioCtx.sampleRate || 44100;
+      sampleRate = audioCtx.sampleRate;
+      binHz = sampleRate / analyser.fftSize;
       freqData = new Float32Array(analyser.frequencyBinCount);
       timeData = new Float32Array(analyser.fftSize);
-
       running = true;
-      activeSession = false;
-      startLayer.style.display = 'none';
-      statusEl.textContent = '等待敲擊';
+      enableTap.classList.add('hidden');
+      statusEl.textContent = 'Listening';
       requestAnimationFrame(tick);
     } catch (err) {
-      hintEl.textContent = '麥克風啟動失敗：' + (err && err.message ? err.message : err);
+      hintEl.textContent = 'Microphone failed: ' + (err && err.message ? err.message : String(err));
     }
-  }
-
-  function nowSec() {
-    return audioCtx ? audioCtx.currentTime : performance.now() / 1000;
   }
 
   function tick() {
-    if (!running || !analyser) return;
-
-    const now = nowSec();
-    analyser.getFloatTimeDomainData(timeData);
+    if (!running) return;
     analyser.getFloatFrequencyData(freqData);
+    analyser.getFloatTimeDomainData(timeData);
+    const now = audioCtx.currentTime;
+    prevRmsDb = rmsDb;
+    rmsDb = computeRmsDb(timeData);
 
-    const rmsDb = getRmsDb(timeData);
-    updateNoiseFloor(rmsDb);
-    updateRmsHistory(now, rmsDb);
+    if (detectClipping(timeData)) clippedUntil = now + 1.2;
+    clipWarn.classList.toggle('show', now < clippedUntil);
 
-    if (detectHit(now, rmsDb)) {
-      newSession(now);
+    updateNoiseFloor(now);
+    const f0Candidate = estimateF0FromSpectrum(freqData);
+    if (f0Candidate) liveF0 = liveF0 ? liveF0 * 0.78 + f0Candidate * 0.22 : f0Candidate;
+
+    if (shouldStartHit(now)) startNewHit(now);
+
+    if (sessionStart > 0) {
+      const t = now - sessionStart;
+      sessionPeakDb = Math.max(sessionPeakDb, rmsDb);
+      if (t >= 0.35 && t <= 2.2) lockFrames.push(copySpectrum(freqData));
+      if (t >= FINGER_START && t <= FINGER_END && rmsDb > noiseFloorDb + 8) stableFrames.push({ rmsDb, spectrum: copySpectrum(freqData) });
+      if (!lockedF0 && t > 1.1 && lockFrames.length >= 4) lockedF0 = estimateF0FromFrames(lockFrames) || liveF0;
+      if (t >= FINGER_START && now - lastFingerprintAt > 0.55) {
+        fingerprint = buildFingerprint(stableFrames, lockedF0 || liveF0);
+        lastFingerprintAt = now;
+      }
+      updateSustain(t);
+      updateWindowInfo(t);
     }
 
-    if (activeSession) {
-      const elapsed = now - sessionStart;
-      const peaks = findPeaks();
-
-      if (elapsed >= CAPTURE_START) {
-        const strongest = peaks.length ? peaks[0].db : -Infinity;
-        if (strongest > sessionPeakDb) sessionPeakDb = strongest;
-      }
-
-      if (!tracksLocked && elapsed >= CAPTURE_START && elapsed <= CAPTURE_END) {
-        peakFrames.push({ t: elapsed, peaks: peaks.slice(0, 80) });
-      }
-
-      if (!tracksLocked && elapsed >= CAPTURE_END) {
-        lockTracksFromCapture();
-      }
-
-      if (tracksLocked && elapsed <= VIEW_SECONDS) {
-        updateLockedTracks(elapsed);
-      }
-
-      draw();
-
-      if (tracksLocked && f0) {
-        statusEl.textContent = `${tracks.length} 頻率 · ${Math.min(elapsed, VIEW_SECONDS).toFixed(1)}s`;
-      } else {
-        statusEl.textContent = `抓頻率中 · ${elapsed.toFixed(1)}s`;
-      }
-    } else {
-      drawIdle(rmsDb);
-    }
-
+    updateTunerReadout();
+    drawMeter();
+    drawLiveSpectrum();
+    drawFingerprint();
     requestAnimationFrame(tick);
   }
 
-  function getRmsDb(buf) {
+  function computeRmsDb(buffer) {
     let sum = 0;
-    for (let i = 0; i < buf.length; i++) sum += buf[i] * buf[i];
-    const rms = Math.sqrt(sum / buf.length) || 1e-12;
+    for (let i = 0; i < buffer.length; i++) sum += buffer[i] * buffer[i];
+    const rms = Math.sqrt(sum / buffer.length) || 1e-12;
     return 20 * Math.log10(rms);
   }
 
-  function updateNoiseFloor(rmsDb) {
-    if (!activeSession || rmsDb < noiseFloorDb + 8) {
-      noiseFloorDb = noiseFloorDb * 0.985 + rmsDb * 0.015;
-    }
+  function detectClipping(buffer) {
+    let count = 0;
+    for (let i = 0; i < buffer.length; i++) if (Math.abs(buffer[i]) > 0.985) count++;
+    return count > 16;
   }
 
-  function updateRmsHistory(now, db) {
-    rmsHistory.push({ t: now, db });
-    while (rmsHistory.length && now - rmsHistory[0].t > 1.1) rmsHistory.shift();
+  function updateNoiseFloor(now) {
+    if (rmsDb < noiseFloorDb + 10 && now - lastHitTime > 2.5) noiseFloorDb = noiseFloorDb * 0.985 + rmsDb * 0.015;
   }
 
-  function recentMinRms() {
-    let m = Infinity;
-    for (const p of rmsHistory) if (p.db < m) m = p.db;
-    return Number.isFinite(m) ? m : noiseFloorDb;
+  function shouldStartHit(now) {
+    if (now - lastHitTime < HIT_REFRACTORY) return false;
+    const rising = rmsDb - prevRmsDb;
+    return rmsDb > -43 && rmsDb > noiseFloorDb + 18 && rising > 7;
   }
 
-  function detectHit(now, rmsDb) {
-    if (now - lastHit < HIT_REFRACTORY) return false;
-    const jump = rmsDb - recentMinRms();
-    const aboveNoise = rmsDb - noiseFloorDb;
-    return aboveNoise > 15 && jump > 9 && rmsDb > -58;
-  }
-
-  function newSession(now) {
-    activeSession = true;
+  function startNewHit(now) {
+    lastHitTime = now;
     sessionStart = now;
-    lastHit = now;
-    f0 = null;
-    sessionPeakDb = -Infinity;
-    tracks = [];
-    peakFrames = [];
-    tracksLocked = false;
-    nextTrackId = 1;
+    sessionPeakDb = rmsDb;
+    stableFrames = [];
+    lockFrames = [];
+    fingerprint = null;
+    sustainSeconds = null;
+    lockedF0 = null;
+    lastFingerprintAt = 0;
+    peakCountEl.textContent = '--';
+    peaksHzEl.textContent = '--';
+    peaksRatioEl.textContent = '--';
+    windowInfo.textContent = 'Hit detected · collecting 5–15 s';
+    statusEl.textContent = 'Hit detected';
   }
 
-  function findPeaks() {
-    const binHz = sampleRate / analyser.fftSize;
-    const startBin = Math.max(2, Math.ceil(MIN_FREQ / binHz));
-    const endBin = Math.min(freqData.length - 2, Math.floor(Math.min(MAX_FREQ, sampleRate / 2 - 200) / binHz));
-    const peaks = [];
+  function copySpectrum(src) { return new Float32Array(src); }
 
-    let localMax = -Infinity;
-    for (let i = startBin; i <= endBin; i++) if (freqData[i] > localMax) localMax = freqData[i];
-    const threshold = Math.max(-92, localMax - 54);
-
-    for (let i = startBin; i <= endBin; i++) {
-      const a = freqData[i - 1], b = freqData[i], c = freqData[i + 1];
-      if (b > threshold && b > a && b >= c) {
-        const denom = a - 2 * b + c;
-        let delta = 0;
-        if (Math.abs(denom) > 1e-6) delta = clamp(0.5 * (a - c) / denom, -0.75, 0.75);
-        const freq = (i + delta) * binHz;
-        const db = b - 0.25 * (a - c) * delta;
-        peaks.push({ freq, db });
-      }
+  function estimateF0FromSpectrum(spectrum) {
+    const start = Math.max(1, Math.floor(F0_MIN / binHz));
+    const end = Math.min(spectrum.length - 2, Math.ceil(F0_MAX / binHz));
+    const candidates = [];
+    const smooth = smoothArray(spectrum, 3);
+    for (let i = start + 1; i < end - 1; i++) {
+      const v = smooth[i];
+      if (v > smooth[i - 1] && v >= smooth[i + 1] && v > -78) candidates.push({ freq: refinePeakFreq(smooth, i), db: v });
     }
-
-    peaks.sort((p, q) => q.db - p.db);
-    return mergeClosePeaks(peaks).slice(0, 100);
+    if (!candidates.length) return null;
+    candidates.sort((a, b) => b.db - a.db);
+    const topDb = candidates[0].db;
+    const strong = candidates.filter(p => p.db > topDb - 14);
+    strong.sort((a, b) => a.freq - b.freq);
+    return strong[0].freq;
   }
 
-  function mergeClosePeaks(peaks) {
-    const out = [];
-    for (const p of peaks) {
-      let tooClose = false;
-      for (const q of out) {
-        const oct = Math.abs(Math.log2(p.freq / q.freq));
-        if (oct < 0.018) { tooClose = true; break; }
-      }
-      if (!tooClose) out.push(p);
+  function estimateF0FromFrames(frames) {
+    if (!frames.length) return null;
+    return estimateF0FromSpectrum(averageSpectrum(frames));
+  }
+
+  function averageSpectrum(frames) {
+    const n = frames[0].length;
+    const out = new Float32Array(n);
+    for (let i = 0; i < n; i++) {
+      let power = 0;
+      for (const frame of frames) power += Math.pow(10, frame[i] / 10);
+      out[i] = 10 * Math.log10(power / frames.length + 1e-12);
     }
     return out;
   }
 
-  function lockTracksFromCapture() {
-    const groups = aggregateCapturePeaks();
-    if (!groups.length) return false;
+  function buildFingerprint(frames, baseFreq) {
+    if (!frames || frames.length < 6) return null;
+    const selected = trimFramesByLevel(frames);
+    if (selected.length < 4) return null;
 
-    groups.sort((a, b) => b.score - a.score);
-    const strongest = groups[0];
-    sessionPeakDb = Number.isFinite(sessionPeakDb) ? sessionPeakDb : strongest.maxDb;
+    const startBin = Math.max(1, Math.floor(MIN_FREQ / binHz));
+    const endBin = Math.min(selected[0].spectrum.length - 2, Math.ceil(MAX_FREQ / binHz));
+    const p20 = new Float32Array(endBin + 1);
+    const p50 = new Float32Array(endBin + 1);
+    const p90 = new Float32Array(endBin + 1);
+    const vals = [];
 
-    const f0Group = estimateF0Group(groups);
-    if (!f0Group) return false;
-    f0 = f0Group.freq;
-
-    const selected = [];
-    addSelected(selected, f0Group, true);
-
-    const candidates = groups
-      .filter(g => g.freq >= MIN_FREQ && g.freq <= MAX_FREQ && g.maxDb >= sessionPeakDb - 52)
-      .sort((a, b) => b.score - a.score);
-
-    for (const g of candidates) {
-      if (selected.length >= LOCKED_TRACKS_MAX) break;
-      addSelected(selected, g, false);
+    for (let i = startBin; i <= endBin; i++) {
+      vals.length = 0;
+      for (const fr of selected) vals.push(fr.spectrum[i]);
+      vals.sort((a, b) => a - b);
+      p20[i] = percentileSorted(vals, 0.20);
+      p50[i] = percentileSorted(vals, 0.50);
+      p90[i] = percentileSorted(vals, 0.90);
     }
 
-    tracks = selected.slice(0, LOCKED_TRACKS_MAX).map((g, idx) => ({
-      id: nextTrackId++,
-      rank: idx,
-      freq: g.freq,
-      fixedFreq: g.freq,
-      isF0: idx === 0,
-      points: [],
-      maxRelDb: DB_MIN
-    }));
-
-    backfillLockedTracks();
-    tracksLocked = true;
-    return true;
+    const smoothMedian = smoothArray(p50, 4);
+    const peaks = findSignificantPeaks(smoothMedian, baseFreq);
+    return { p20, p50: smoothMedian, p90, startBin, endBin, peaks, frameCount: selected.length };
   }
 
-  function addSelected(selected, group, isF0) {
-    if (!group) return false;
-    for (const s of selected) {
-      if (Math.abs(Math.log2(group.freq / s.freq)) < 0.025) return false;
+  function trimFramesByLevel(frames) {
+    if (frames.length < 6) return frames;
+    const levels = frames.map(f => f.rmsDb).slice().sort((a, b) => a - b);
+    const lo = percentileSorted(levels, 0.18);
+    const hi = percentileSorted(levels, 0.92);
+    return frames.filter(f => f.rmsDb >= lo && f.rmsDb <= hi);
+  }
+
+  function percentileSorted(sorted, p) {
+    if (!sorted.length) return -120;
+    const idx = (sorted.length - 1) * p;
+    const lo = Math.floor(idx), hi = Math.ceil(idx);
+    if (lo === hi) return sorted[lo];
+    const t = idx - lo;
+    return sorted[lo] * (1 - t) + sorted[hi] * t;
+  }
+
+  function smoothArray(arr, radius) {
+    const out = new Float32Array(arr.length);
+    for (let i = 0; i < arr.length; i++) {
+      let sum = 0, count = 0;
+      for (let k = -radius; k <= radius; k++) {
+        const j = i + k;
+        if (j >= 0 && j < arr.length && Number.isFinite(arr[j])) { sum += arr[j]; count++; }
+      }
+      out[i] = count ? sum / count : arr[i];
     }
-    selected.push({ ...group, isF0: !!isF0 });
-    return true;
+    return out;
   }
 
-  function aggregateCapturePeaks() {
-    const groups = [];
-    const minDb = Number.isFinite(sessionPeakDb) ? sessionPeakDb - 55 : -92;
-
-    for (const frame of peakFrames) {
-      for (const p of frame.peaks) {
-        if (p.freq < MIN_FREQ || p.freq > MAX_FREQ || p.db < minDb) continue;
-        let group = null;
-        for (const g of groups) {
-          if (Math.abs(Math.log2(p.freq / g.freq)) < 0.025) { group = g; break; }
-        }
-        const power = Math.pow(10, p.db / 20);
-        if (!group) {
-          group = { freq: p.freq, weight: power, hits: 0, maxDb: p.db, sumDb: 0, score: 0 };
-          groups.push(group);
-        } else {
-          group.freq = (group.freq * group.weight + p.freq * power) / (group.weight + power);
-          group.weight += power;
-          if (p.db > group.maxDb) group.maxDb = p.db;
-        }
-        group.hits += 1;
-        group.sumDb += p.db;
+  function findSignificantPeaks(spectrum, baseFreq) {
+    const start = Math.max(1, Math.floor(MIN_FREQ / binHz));
+    const end = Math.min(spectrum.length - 2, Math.ceil(MAX_FREQ / binHz));
+    let maxDb = -Infinity;
+    for (let i = start; i <= end; i++) maxDb = Math.max(maxDb, spectrum[i]);
+    const threshold = Math.max(maxDb - 36, -82);
+    const candidates = [];
+    for (let i = start + 2; i < end - 2; i++) {
+      const v = spectrum[i];
+      if (v < threshold) continue;
+      if (v >= spectrum[i - 1] && v >= spectrum[i + 1] && v > spectrum[i - 2] && v > spectrum[i + 2]) {
+        const leftBase = Math.min(spectrum[Math.max(start, i - 18)], spectrum[Math.max(start, i - 9)]);
+        const rightBase = Math.min(spectrum[Math.min(end, i + 18)], spectrum[Math.min(end, i + 9)]);
+        const prom = v - Math.max(leftBase, rightBase);
+        if (prom >= 4.5) candidates.push({ freq: refinePeakFreq(spectrum, i), db: v, prominence: prom });
       }
     }
-
-    for (const g of groups) {
-      const avgDb = g.sumDb / Math.max(1, g.hits);
-      g.score = g.maxDb + g.hits * 1.9 + avgDb * 0.08;
+    candidates.sort((a, b) => b.db - a.db);
+    const merged = [];
+    for (const p of candidates) {
+      const close = merged.some(q => Math.abs(Math.log2(p.freq / q.freq)) < 0.035 || Math.abs(p.freq - q.freq) < 18);
+      if (!close) merged.push(p);
+      if (merged.length >= MAX_ANALYZED_PEAKS) break;
     }
-
-    return groups;
-  }
-
-  function estimateF0Group(groups) {
-    if (!groups.length) return null;
-    const maxScore = groups[0].score;
-    const maxDb = Math.max(...groups.map(g => g.maxDb));
-
-    const strongLow = groups
-      .filter(g => g.freq >= MIN_FREQ && g.freq <= F0_MAX && g.score >= maxScore - 18 && g.maxDb >= maxDb - 24)
-      .sort((a, b) => a.freq - b.freq);
-
-    if (strongLow.length) return strongLow[0];
-
-    return groups
-      .filter(g => g.freq >= MIN_FREQ && g.freq <= F0_MAX)
-      .sort((a, b) => b.score - a.score)[0] || null;
-  }
-
-  function backfillLockedTracks() {
-    for (const frame of peakFrames) {
-      for (const tr of tracks) {
-        const p = findPeakNear(frame.peaks, tr.fixedFreq, 0.035);
-        if (p) addPointRaw(tr, frame.t, p.db);
-      }
+    merged.sort((a, b) => a.freq - b.freq);
+    const f0 = baseFreq || (merged.length ? merged[0].freq : null);
+    for (const p of merged) {
+      p.ratio = f0 ? p.freq / f0 : null;
+      p.octavePosition = p.ratio ? frac(Math.log2(p.ratio)) : null;
     }
+    return merged;
   }
 
-  function updateLockedTracks(elapsed) {
-    for (const tr of tracks) {
-      const db = measureDbAtFreq(tr.fixedFreq);
-      addPointRaw(tr, elapsed, db);
-    }
+  function refinePeakFreq(spectrum, i) {
+    const y0 = spectrum[i - 1], y1 = spectrum[i], y2 = spectrum[i + 1];
+    const denom = y0 - 2 * y1 + y2;
+    const delta = Math.abs(denom) > 1e-6 ? 0.5 * (y0 - y2) / denom : 0;
+    return (i + clamp(delta, -0.5, 0.5)) * binHz;
   }
 
-  function findPeakNear(peaks, freq, maxOctDist) {
-    let best = null;
-    let bestDist = Infinity;
-    for (const p of peaks) {
-      const dist = Math.abs(Math.log2(p.freq / freq));
-      if (dist < bestDist && dist <= maxOctDist) {
-        bestDist = dist;
-        best = p;
-      }
-    }
-    return best;
+  function frac(x) { return x - Math.floor(x); }
+
+  function updateSustain(t) {
+    if (sessionPeakDb === -Infinity) return;
+    const threshold = Math.max(noiseFloorDb + 8, sessionPeakDb - 45);
+    if (!sustainSeconds && t > 1 && rmsDb < threshold) sustainSeconds = t;
+    const s = sustainSeconds || t;
+    sustainBadge.textContent = 'Sustain ' + s.toFixed(1) + ' s';
   }
 
-  function measureDbAtFreq(freq) {
-    const binHz = sampleRate / analyser.fftSize;
-    const center = Math.round(freq / binHz);
-    const radius = Math.max(2, Math.round((freq * 0.018) / binHz));
-    let best = -Infinity;
-    const start = Math.max(2, center - radius);
-    const end = Math.min(freqData.length - 3, center + radius);
-    for (let i = start; i <= end; i++) {
-      if (freqData[i] > best) best = freqData[i];
-    }
-    return Number.isFinite(best) ? best : sessionPeakDb + DB_MIN;
-  }
-
-  function addPointRaw(track, elapsed, db) {
-    if (!Number.isFinite(sessionPeakDb)) return;
-    const relDb = clamp(db - sessionPeakDb, DB_MIN, 0);
-    track.points.push({ t: elapsed, db: relDb, freq: track.fixedFreq });
-    track.maxRelDb = Math.max(track.maxRelDb, relDb);
-    if (track.points.length > 1400) track.points.shift();
-  }
-
-  function visibleTracks() {
-    return tracks.slice(0, lineCount);
-  }
-
-  function drawIdle(rmsDb) {
-    drawBase();
-    drawTextCenter('等待敲擊', `背景 ${Math.round(rmsDb)} dBFS`);
-  }
-
-  function draw() {
-    drawBase();
-    if (!activeSession) return;
-
-    const now = nowSec();
-    const elapsed = Math.min(now - sessionStart, VIEW_SECONDS);
-    drawCursor(elapsed);
-
-    const list = visibleTracks();
-    for (const tr of list) drawTrack(tr);
-    drawTrackLegend(list);
-    drawF0Info();
-
-    if (!tracksLocked) {
-      drawTextCenter('抓頻率中', '敲擊後 0.3–1.1 秒鎖定主頻與共鳴線');
-    } else if (now - sessionStart > VIEW_SECONDS) {
-      drawTextCenter('30 秒結束', '下一次敲擊會自動重畫');
+  function updateWindowInfo(t) {
+    if (t < FINGER_START) {
+      statusEl.textContent = 'Listening';
+      windowInfo.textContent = 'Collecting · fingerprint starts at 5 s';
+    } else if (t <= FINGER_END) {
+      statusEl.textContent = 'Analyzing';
+      windowInfo.textContent = 'Analyzing ' + t.toFixed(1) + ' s · 5–15 s window';
+    } else {
+      statusEl.textContent = fingerprint ? 'Fingerprint ready' : 'Ready';
+      windowInfo.textContent = fingerprint ? 'Fingerprint ready · latest hit' : 'Waiting for usable tail';
     }
   }
 
-  function drawBase() {
-    ctx.fillStyle = '#08090b';
-    ctx.fillRect(0, 0, width, height);
-
-    const left = margin.left, right = width - margin.right;
-    const top = margin.top, bottom = height - margin.bottom;
-    const plotW = right - left, plotH = bottom - top;
-
-    const g = ctx.createLinearGradient(0, top, 0, bottom);
-    g.addColorStop(0, '#111827');
-    g.addColorStop(1, '#050507');
-    ctx.fillStyle = g;
-    roundRect(ctx, left, top, plotW, plotH, 14);
-    ctx.fill();
-
-    ctx.font = '11px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif';
-    ctx.textBaseline = 'middle';
-
-    for (const db of [0, -20, -40, -60]) {
-      const y = yForDb(db);
-      ctx.strokeStyle = db === 0 ? 'rgba(255,255,255,.18)' : 'rgba(255,255,255,.10)';
-      ctx.lineWidth = 1;
-      line(left, y, right, y);
-      ctx.fillStyle = 'rgba(255,255,255,.62)';
-      ctx.textAlign = 'right';
-      ctx.fillText(db + ' dB', left - 8, y);
+  function updateTunerReadout() {
+    const displayF = lockedF0 || liveF0;
+    if (!displayF || !Number.isFinite(displayF)) {
+      freqValue.textContent = '--';
+      noteValue.textContent = '--';
+      centValue.textContent = '--¢';
+      currentCents = 0;
+      return;
     }
-
-    for (let s = 0; s <= VIEW_SECONDS; s += 5) {
-      const x = xForTime(s);
-      ctx.strokeStyle = s === 0 ? 'rgba(255,255,255,.18)' : 'rgba(255,255,255,.075)';
-      ctx.lineWidth = 1;
-      line(x, top, x, bottom);
-      ctx.fillStyle = 'rgba(255,255,255,.56)';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'top';
-      ctx.fillText(String(s), x, bottom + 10);
-    }
-
-    ctx.fillStyle = 'rgba(255,255,255,.38)';
-    ctx.textAlign = 'right';
-    ctx.textBaseline = 'top';
-    ctx.fillText('秒', right, bottom + 10);
+    const note = freqToNote(displayF);
+    currentCents = note.cents;
+    meterCents = meterCents * 0.82 + currentCents * 0.18;
+    freqValue.textContent = displayF < 100 ? displayF.toFixed(1) : Math.round(displayF).toString();
+    noteValue.textContent = note.name;
+    centValue.textContent = (note.cents >= 0 ? '+' : '') + note.cents.toFixed(0) + '¢';
+    spectrumHint.textContent = 'F0 ' + formatHz(displayF) + ' Hz';
   }
 
-  function drawTrack(tr) {
-    const pts = tr.points.filter(p => p.t >= 0 && p.t <= VIEW_SECONDS && p.db >= DB_MIN);
-    if (pts.length < 2) return;
-
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-    ctx.globalCompositeOperation = 'lighter';
-
-    for (let i = 1; i < pts.length; i++) {
-      const a = pts[i - 1], b = pts[i];
-      if (Math.abs(b.t - a.t) > 0.35) continue;
-      const alpha = clamp((Math.max(a.db, b.db) - DB_MIN) / 44, 0.12, 0.95);
-      ctx.strokeStyle = colorForFreq(tr.fixedFreq, alpha);
-      ctx.lineWidth = tr.isF0 ? 3.2 : 2.15;
-      line(xForTime(a.t), yForDb(a.db), xForTime(b.t), yForDb(b.db));
-    }
-
-    ctx.globalCompositeOperation = 'source-over';
-  }
-
-  function drawTrackLegend(list) {
-    if (!list.length) return;
-    const x = width - margin.right + 12;
-    const top = margin.top + 18;
-    const step = lineCount === 12 ? 17 : 20;
-    ctx.textAlign = 'left';
-    ctx.textBaseline = 'middle';
-    ctx.font = `${lineCount === 12 ? 11 : 12}px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif`;
-
-    ctx.fillStyle = 'rgba(255,255,255,.36)';
-    ctx.fillText('Hz', x, margin.top + 3);
-
-    list.forEach((tr, i) => {
-      const y = top + i * step;
-      ctx.fillStyle = colorForFreq(tr.fixedFreq, tr.isF0 ? 1 : 0.92);
-      ctx.font = `${tr.isF0 ? '700 ' : '600 '}${lineCount === 12 ? 11 : 12}px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif`;
-      ctx.fillText(formatFreqShort(tr.fixedFreq), x, y);
-    });
-  }
-
-  function drawF0Info() {
-    if (!f0) return;
-    const left = margin.left + 10;
-    const top = margin.top + 10;
-    const n = noteInfo(f0);
-    const text = `F0 ${f0.toFixed(1)} Hz · ${n.name} ${formatCents(n.cents)}`;
-
-    ctx.font = '700 13px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif';
-    const tw = ctx.measureText(text).width;
-    const w = Math.min(tw + 24, width - margin.left - margin.right - 18);
-    const h = 28;
-
-    ctx.fillStyle = 'rgba(0,0,0,.48)';
-    roundRect(ctx, left, top, w, h, 999);
-    ctx.fill();
-    ctx.strokeStyle = 'rgba(255,255,255,.12)';
-    ctx.lineWidth = 1;
-    roundRect(ctx, left, top, w, h, 999);
-    ctx.stroke();
-
-    ctx.fillStyle = 'rgba(255,255,255,.92)';
-    ctx.textAlign = 'left';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(text, left + 12, top + h / 2);
-  }
-
-  function drawCursor(t) {
-    const x = xForTime(t);
-    ctx.strokeStyle = 'rgba(255,255,255,.22)';
-    ctx.setLineDash([4, 5]);
-    line(x, margin.top, x, height - margin.bottom);
-    ctx.setLineDash([]);
-  }
-
-  function drawTextCenter(main, sub) {
-    const x = (margin.left + width - margin.right) / 2;
-    const y = (margin.top + height - margin.bottom) / 2;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillStyle = 'rgba(255,255,255,.86)';
-    ctx.font = '700 20px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif';
-    ctx.fillText(main, x, y - 12);
-    ctx.fillStyle = 'rgba(255,255,255,.46)';
-    ctx.font = '13px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif';
-    ctx.fillText(sub, x, y + 18);
-  }
-
-  function xForTime(t) {
-    const left = margin.left, right = width - margin.right;
-    return left + clamp(t / VIEW_SECONDS, 0, 1) * (right - left);
-  }
-
-  function yForDb(db) {
-    const top = margin.top, bottom = height - margin.bottom;
-    const v = (clamp(db, DB_MIN, DB_MAX) - DB_MIN) / (DB_MAX - DB_MIN);
-    return bottom - v * (bottom - top);
-  }
-
-  function colorForFreq(freq, alpha = 1) {
-    if (!f0 || !Number.isFinite(freq)) return `rgba(255,255,255,${alpha})`;
-    const r = Math.log2(freq / f0);
-    const pos = ((r % 1) + 1) % 1;
-    const hue = pos * 360;
-    return `hsla(${hue.toFixed(1)}, 95%, 62%, ${alpha})`;
-  }
-
-  function noteInfo(freq) {
+  function freqToNote(freq) {
     const names = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
     const midiFloat = 69 + 12 * Math.log2(freq / 440);
     const midi = Math.round(midiFloat);
-    const name = names[((midi % 12) + 12) % 12] + (Math.floor(midi / 12) - 1);
-    const cents = Math.round((midiFloat - midi) * 100);
-    return { name, cents };
+    const cents = (midiFloat - midi) * 100;
+    const octave = Math.floor(midi / 12) - 1;
+    return { name: names[((midi % 12) + 12) % 12] + octave, cents, midi };
   }
 
-  function formatCents(cents) {
-    if (!Number.isFinite(cents) || cents === 0) return '±0¢';
-    return (cents > 0 ? '+' : '') + cents + '¢';
+  function drawMeter() {
+    const { w, h } = resizeCanvas(meterCanvas, meterCtx);
+    meterCtx.clearRect(0, 0, w, h);
+    const cx = w / 2;
+    const y = h * 0.44;
+    const length = w * 0.84;
+    const x0 = cx - length / 2;
+    const x1 = cx + length / 2;
+
+    meterCtx.save();
+    meterCtx.strokeStyle = 'rgba(148,163,184,.28)';
+    meterCtx.lineWidth = 1;
+    meterCtx.beginPath(); meterCtx.moveTo(x0, y); meterCtx.lineTo(x1, y); meterCtx.stroke();
+
+    for (let c = -50; c <= 50; c += 10) {
+      const x = x0 + (c + 50) / 100 * length;
+      const major = c % 50 === 0 || c === 0;
+      meterCtx.strokeStyle = c === 0 ? 'rgba(255,255,255,.55)' : 'rgba(148,163,184,.28)';
+      meterCtx.lineWidth = c === 0 ? 2 : 1;
+      meterCtx.beginPath(); meterCtx.moveTo(x, y - (major ? 28 : 15)); meterCtx.lineTo(x, y + (major ? 28 : 15)); meterCtx.stroke();
+    }
+
+    const clamped = clamp(meterCents || 0, -50, 50);
+    const px = x0 + (clamped + 50) / 100 * length;
+    const grad = meterCtx.createLinearGradient(px, y - 50, px, y + 52);
+    grad.addColorStop(0, '#a7f3d0');
+    grad.addColorStop(1, '#34d399');
+    meterCtx.strokeStyle = grad;
+    meterCtx.lineWidth = 5;
+    meterCtx.lineCap = 'round';
+    meterCtx.shadowColor = 'rgba(52,211,153,.38)';
+    meterCtx.shadowBlur = 18;
+    meterCtx.beginPath(); meterCtx.moveTo(px, y - 52); meterCtx.lineTo(px, y + 52); meterCtx.stroke();
+    meterCtx.shadowBlur = 0;
+    meterCtx.fillStyle = Math.abs(clamped) < 5 ? '#34d399' : Math.abs(clamped) < 22 ? '#facc15' : '#fb7185';
+    meterCtx.beginPath(); meterCtx.arc(px, y, 6, 0, Math.PI * 2); meterCtx.fill();
+    meterCtx.restore();
   }
 
-  function formatFreqShort(freq) {
-    if (!Number.isFinite(freq)) return '--';
-    if (freq >= 10000) return (freq / 1000).toFixed(1) + 'k';
-    if (freq >= 1000) return Math.round(freq).toString();
-    return Math.round(freq).toString();
+  function drawLiveSpectrum() {
+    const { w, h } = resizeCanvas(liveSpectrumCanvas, liveSpectrumCtx);
+    liveSpectrumCtx.fillStyle = '#030712';
+    liveSpectrumCtx.fillRect(0, 0, w, h);
+    const m = { l: 36, r: 12, t: 26, b: 24 };
+    const gw = Math.max(10, w - m.l - m.r);
+    const gh = Math.max(10, h - m.t - m.b);
+    drawGrid(liveSpectrumCtx, w, h, m, gw, gh, true);
+    if (!freqData) {
+      liveSpectrumCtx.fillStyle = 'rgba(148,163,184,.62)';
+      liveSpectrumCtx.font = '11px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif';
+      liveSpectrumCtx.fillText('Tap to enable live spectrum', m.l + 8, m.t + 20);
+      return;
+    }
+    drawSpectrumLine(liveSpectrumCtx, freqData, m, gw, gh, '#34d399', 1.7, 240);
   }
 
-  function line(x1, y1, x2, y2) {
+  function drawFingerprint() {
+    const { w, h } = resizeCanvas(graphCanvas, graphCtx);
+    graphCtx.fillStyle = '#030712';
+    graphCtx.fillRect(0, 0, w, h);
+    const m = { l: 44, r: 16, t: 14, b: 30 };
+    const gw = Math.max(10, w - m.l - m.r);
+    const gh = Math.max(10, h - m.t - m.b);
+    drawGrid(graphCtx, w, h, m, gw, gh, false);
+    if (!fingerprint) {
+      graphCtx.fillStyle = 'rgba(148,163,184,.72)';
+      graphCtx.font = '12px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif';
+      graphCtx.fillText('Waiting for 5–15 s resonance window', m.l + 8, m.t + 22);
+      return;
+    }
+
+    const { p20, p50, p90, startBin, endBin, peaks } = fingerprint;
+    const points = makeLogPoints(startBin, endBin, 260);
+    const xForFreq = f => m.l + (Math.log(f / MIN_FREQ) / Math.log(MAX_FREQ / MIN_FREQ)) * gw;
+    const yForDb = db => m.t + (1 - (clamp(db, DB_MIN, DB_MAX) - DB_MIN) / (DB_MAX - DB_MIN)) * gh;
+
+    graphCtx.save();
+    graphCtx.beginPath();
+    points.forEach((bin, idx) => {
+      const x = xForFreq(bin * binHz);
+      const y = yForDb(p90[bin]);
+      if (idx === 0) graphCtx.moveTo(x, y); else graphCtx.lineTo(x, y);
+    });
+    for (let i = points.length - 1; i >= 0; i--) graphCtx.lineTo(xForFreq(points[i] * binHz), yForDb(p20[points[i]]));
+    graphCtx.closePath();
+    graphCtx.fillStyle = 'rgba(45,212,191,.18)';
+    graphCtx.fill();
+
+    graphCtx.beginPath();
+    points.forEach((bin, idx) => {
+      const x = xForFreq(bin * binHz);
+      const y = yForDb(p50[bin]);
+      if (idx === 0) graphCtx.moveTo(x, y); else graphCtx.lineTo(x, y);
+    });
+    graphCtx.strokeStyle = '#34d399';
+    graphCtx.lineWidth = 2.2;
+    graphCtx.shadowColor = 'rgba(52,211,153,.22)';
+    graphCtx.shadowBlur = 10;
+    graphCtx.stroke();
+    graphCtx.shadowBlur = 0;
+
+    const showPeaks = peaks.slice(0, MAX_LIST_PEAKS);
+    graphCtx.font = '10px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif';
+    graphCtx.textAlign = 'center';
+    graphCtx.textBaseline = 'bottom';
+    for (const p of showPeaks) {
+      const x = xForFreq(p.freq);
+      const y = yForDb(p.db);
+      graphCtx.strokeStyle = 'rgba(125,211,252,.48)';
+      graphCtx.lineWidth = 1;
+      graphCtx.beginPath(); graphCtx.moveTo(x, m.t); graphCtx.lineTo(x, m.t + gh); graphCtx.stroke();
+      graphCtx.fillStyle = '#bfdbfe';
+      graphCtx.fillText(formatHz(p.freq), x, Math.max(m.t + 12, y - 4));
+    }
+    graphCtx.restore();
+    updatePeakText(peaks);
+  }
+
+  function drawSpectrumLine(ctx, spectrum, m, gw, gh, color, width, count) {
+    const startBin = Math.max(1, Math.floor(MIN_FREQ / binHz));
+    const endBin = Math.min(spectrum.length - 2, Math.ceil(MAX_FREQ / binHz));
+    const points = makeLogPoints(startBin, endBin, count);
+    const xForFreq = f => m.l + (Math.log(f / MIN_FREQ) / Math.log(MAX_FREQ / MIN_FREQ)) * gw;
+    const yForDb = db => m.t + (1 - (clamp(db, DB_MIN, DB_MAX) - DB_MIN) / (DB_MAX - DB_MIN)) * gh;
+    ctx.save();
     ctx.beginPath();
-    ctx.moveTo(x1, y1);
-    ctx.lineTo(x2, y2);
+    points.forEach((bin, idx) => {
+      const x = xForFreq(bin * binHz);
+      const y = yForDb(spectrum[bin]);
+      if (idx === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    });
+    ctx.strokeStyle = color;
+    ctx.lineWidth = width;
+    ctx.shadowColor = 'rgba(52,211,153,.18)';
+    ctx.shadowBlur = 8;
     ctx.stroke();
+    ctx.restore();
   }
 
-  function roundRect(ctx, x, y, w, h, r) {
-    ctx.beginPath();
-    ctx.moveTo(x + r, y);
-    ctx.arcTo(x + w, y, x + w, y + h, r);
-    ctx.arcTo(x + w, y + h, x, y + h, r);
-    ctx.arcTo(x, y + h, x, y, r);
-    ctx.arcTo(x, y, x + w, y, r);
-    ctx.closePath();
+  function drawGrid(ctx, w, h, m, gw, gh, compact) {
+    ctx.save();
+    ctx.strokeStyle = 'rgba(148,163,184,.14)';
+    ctx.lineWidth = 1;
+    const freqTicks = [50, 100, 200, 500, 1000, 2000, 5000];
+    ctx.font = (compact ? '9px' : '10px') + ' -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif';
+    ctx.fillStyle = 'rgba(148,163,184,.62)';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'top';
+    for (const f of freqTicks) {
+      if (f < MIN_FREQ || f > MAX_FREQ) continue;
+      const x = m.l + (Math.log(f / MIN_FREQ) / Math.log(MAX_FREQ / MIN_FREQ)) * gw;
+      ctx.beginPath(); ctx.moveTo(x, m.t); ctx.lineTo(x, m.t + gh); ctx.stroke();
+      ctx.fillText(f >= 1000 ? (f / 1000) + 'k' : String(f), x, m.t + gh + 6);
+    }
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'middle';
+    const dbTicks = compact ? [-40, -70] : [-20, -40, -60, -80];
+    for (const db of dbTicks) {
+      const y = m.t + (1 - (db - DB_MIN) / (DB_MAX - DB_MIN)) * gh;
+      ctx.beginPath(); ctx.moveTo(m.l, y); ctx.lineTo(m.l + gw, y); ctx.stroke();
+      ctx.fillText(db + 'dB', m.l - 6, y);
+    }
+    ctx.restore();
   }
 
-  function clamp(v, lo, hi) {
-    return Math.max(lo, Math.min(hi, v));
+  function makeLogPoints(startBin, endBin, count) {
+    const bins = [];
+    const f0 = Math.max(MIN_FREQ, startBin * binHz);
+    const f1 = Math.min(MAX_FREQ, endBin * binHz);
+    let last = -1;
+    for (let i = 0; i < count; i++) {
+      const t = i / (count - 1);
+      const f = f0 * Math.pow(f1 / f0, t);
+      const bin = Math.max(startBin, Math.min(endBin, Math.round(f / binHz)));
+      if (bin !== last) bins.push(bin);
+      last = bin;
+    }
+    return bins;
   }
+
+  function updatePeakText(peaks) {
+    const list = peaks || [];
+    peakCountEl.textContent = String(list.length);
+    const shown = list.slice(0, MAX_LIST_PEAKS);
+    if (!shown.length) {
+      peaksHzEl.textContent = '--';
+      peaksRatioEl.textContent = '--';
+      return;
+    }
+    peaksHzEl.textContent = shown.map(p => formatHz(p.freq)).join(' / ');
+    peaksRatioEl.textContent = shown.map(p => {
+      const r = p.ratio ? '×' + p.ratio.toFixed(2) : '×--';
+      const pos = Number.isFinite(p.octavePosition) ? p.octavePosition.toFixed(2) : '--';
+      return r + ' · pos ' + pos;
+    }).join(' / ');
+  }
+
+  function resizeCanvas(canvas, ctx) {
+    const dpr = Math.max(1, Math.min(3, window.devicePixelRatio || 1));
+    const rect = canvas.getBoundingClientRect();
+    const w = Math.max(10, Math.floor(rect.width));
+    const h = Math.max(10, Math.floor(rect.height));
+    if (canvas.width !== Math.floor(w * dpr) || canvas.height !== Math.floor(h * dpr)) {
+      canvas.width = Math.floor(w * dpr);
+      canvas.height = Math.floor(h * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    return { w, h };
+  }
+
+  function formatHz(freq) {
+    if (!Number.isFinite(freq)) return '--';
+    return freq < 100 ? freq.toFixed(1) : String(Math.round(freq));
+  }
+
+  function clamp(x, a, b) { return Math.max(a, Math.min(b, x)); }
+
+  drawMeter();
+  drawLiveSpectrum();
+  drawFingerprint();
 })();
 </script>
 </body>
