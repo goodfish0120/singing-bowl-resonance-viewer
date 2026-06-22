@@ -2,720 +2,1298 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>Singing Bowl Resonance Tuner</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+<title>Resonance Tuner — Breath Fixed</title>
 <style>
 :root{
   --bg:#05070a;
-  --card:#0a1018;
-  --card2:#0d1622;
+  --panel:#0b111a;
+  --panel2:#111827;
   --text:#f8fafc;
-  --muted:#91a3b8;
-  --dim:#536274;
-  --line:#34d399;
-  --line2:#7dd3fc;
+  --muted:#94a3b8;
+  --dim:#64748b;
+  --grid:rgba(148,163,184,.15);
+  --green:#34d399;
+  --green2:#22c55e;
+  --cyan:#38bdf8;
   --yellow:#facc15;
   --red:#fb7185;
-  --grid:rgba(148,163,184,.16);
+  --line:#a7f3d0;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
-body{overflow-x:hidden}
-button{font:inherit}
-#app{min-height:100%;background:radial-gradient(circle at 50% -10%,rgba(52,211,153,.12),transparent 34%),var(--bg)}
-.hero{min-height:100svh;display:flex;flex-direction:column;padding:calc(env(safe-area-inset-top) + 10px) 10px calc(env(safe-area-inset-bottom) + 10px);gap:10px}
-.topbar{height:30px;display:flex;align-items:center;gap:10px;color:var(--muted);font-size:11px;letter-spacing:.08em;text-transform:uppercase;font-weight:760}.brand{color:#dbeafe;white-space:nowrap}.spacer{flex:1}.status{color:var(--line);text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
-.tunerStage{position:relative;flex:1;min-height:0;display:flex;flex-direction:column;gap:10px}
-.tunerCard{position:relative;flex:1;min-height:310px;border:1px solid rgba(148,163,184,.18);border-radius:24px;background:linear-gradient(180deg,rgba(15,23,42,.92),rgba(2,6,23,.98));box-shadow:inset 0 1px 0 rgba(255,255,255,.04),0 18px 70px rgba(0,0,0,.28);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:18px 14px;overflow:hidden}
-.readout{width:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}.smallLabel{font-size:11px;color:var(--muted);letter-spacing:.18em;text-transform:uppercase;font-weight:780}.freq{font-size:clamp(76px,28vw,145px);line-height:.9;font-weight:880;letter-spacing:-.085em;font-variant-numeric:tabular-nums;text-shadow:0 0 38px rgba(52,211,153,.12)}.freq .unit{font-size:.2em;letter-spacing:.02em;color:var(--muted);margin-left:8px;font-weight:760}.note{font-size:clamp(30px,10.5vw,58px);line-height:1.05;font-weight:840;letter-spacing:-.035em;color:#e2e8f0;font-variant-numeric:tabular-nums}.note .cents{color:var(--muted);font-weight:740;margin-left:10px}.meter{width:min(620px,94%);height:112px;margin-top:12px;position:relative}.meterCanvas{width:100%;height:100%;display:block}.meterLabels{position:absolute;left:0;right:0;bottom:1px;display:flex;justify-content:space-between;color:var(--dim);font-size:10px;font-weight:680;padding:0 10px;pointer-events:none}.meterCenter{position:absolute;left:50%;top:0;bottom:12px;width:1px;background:rgba(255,255,255,.36);box-shadow:0 0 12px rgba(255,255,255,.18)}
-.tunerMeta{position:absolute;left:14px;right:14px;bottom:12px;display:flex;align-items:end;gap:8px;color:var(--muted);font-size:11px}.clipWarn{color:var(--red);font-weight:780;opacity:0;transition:.2s}.clipWarn.show{opacity:1}.sustainBadge{margin-left:auto;color:#e2e8f0;font-weight:780;font-variant-numeric:tabular-nums}
-.enableTap{position:absolute;left:50%;bottom:50px;transform:translateX(-50%);z-index:5;display:flex;flex-direction:column;align-items:center;gap:7px;pointer-events:none}.enableBtn{pointer-events:auto;border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:12px 18px;background:rgba(248,250,252,.96);color:#020617;font-weight:860;box-shadow:0 14px 40px rgba(0,0,0,.32)}.enableNote{font-size:11px;color:var(--muted);background:rgba(2,6,23,.55);border:1px solid rgba(148,163,184,.14);border-radius:999px;padding:5px 9px}.enableTap.hidden{display:none}
-.spectrumCard{height:clamp(118px,22svh,180px);border:1px solid rgba(148,163,184,.16);border-radius:22px;background:linear-gradient(180deg,rgba(13,22,34,.95),rgba(2,6,23,.98));overflow:hidden;position:relative}.spectrumCanvas{width:100%;height:100%;display:block}.spectrumTitle{position:absolute;left:12px;top:9px;color:rgba(219,234,254,.82);font-size:10px;letter-spacing:.12em;text-transform:uppercase;font-weight:800}.spectrumHint{position:absolute;right:12px;top:9px;color:rgba(145,163,184,.82);font-size:10px;font-variant-numeric:tabular-nums}.scrollCue{text-align:center;color:var(--muted);font-size:11px;margin-top:-2px;letter-spacing:.06em}
-.fingerprintSection{min-height:100svh;padding:calc(env(safe-area-inset-top) + 14px) 10px calc(env(safe-area-inset-bottom) + 18px);display:flex;flex-direction:column;gap:10px;background:linear-gradient(180deg,#05070a,#020617)}.sectionHeader{display:flex;align-items:end;gap:10px}.sectionTitle{font-size:18px;font-weight:860;letter-spacing:-.02em;color:#e5eefb}.sectionActions{margin-left:auto;display:flex;align-items:center;gap:8px}.refreshBtn{border:1px solid rgba(125,211,252,.32);border-radius:999px;padding:8px 11px;background:rgba(15,23,42,.78);color:#e0f2fe;font-size:11px;font-weight:820;letter-spacing:.03em;box-shadow:inset 0 1px 0 rgba(255,255,255,.05)}.refreshBtn:active{transform:translateY(1px);background:rgba(14,165,233,.18)}.sectionSub{text-align:right;color:var(--muted);font-size:11px;line-height:1.3;font-variant-numeric:tabular-nums}.fingerPanel{flex:1;min-height:300px;border:1px solid rgba(148,163,184,.18);border-radius:22px;background:linear-gradient(180deg,rgba(15,23,42,.92),rgba(2,6,23,.98));padding:10px;display:flex;flex-direction:column;gap:10px}.graphWrap{position:relative;flex:1;min-height:240px;border-radius:16px;background:rgba(2,6,23,.55);border:1px solid rgba(148,163,184,.12);overflow:hidden}.graphCanvas{width:100%;height:100%;display:block}.dataGrid{display:grid;grid-template-columns:1fr;gap:8px}.dataBox{border:1px solid rgba(148,163,184,.14);background:rgba(15,23,42,.62);border-radius:15px;padding:10px 11px;min-width:0}.dataTitle{font-size:10px;color:var(--muted);letter-spacing:.14em;text-transform:uppercase;font-weight:780;margin-bottom:6px}.dataLine{font-size:12px;line-height:1.48;font-variant-numeric:tabular-nums;color:#e5eefb;word-break:break-word}.dataLine.muted{color:var(--muted)}.peakCount{font-size:32px;line-height:1;font-weight:860;color:#f8fafc;margin-right:7px}.peakCountLine{display:flex;align-items:baseline;color:var(--muted);font-size:12px}
-@media (min-width:760px) and (orientation:landscape){
-  .hero{padding-left:14px;padding-right:14px}.tunerStage{display:grid;grid-template-columns:1.2fr .8fr;grid-template-rows:1fr;align-items:stretch}.tunerCard{min-height:0}.spectrumCard{height:auto}.fingerprintSection{padding-left:14px;padding-right:14px}.dataGrid{grid-template-columns:.55fr 1fr 1.1fr}.fingerPanel{min-height:520px}
+html,body{margin:0;min-width:100%;min-height:100%;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;overscroll-behavior:none}
+body{overflow-x:hidden;overflow-y:auto}
+button{font:inherit;color:inherit}
+#app{min-height:100svh;padding:calc(env(safe-area-inset-top) + 6px) calc(env(safe-area-inset-right) + 8px) calc(env(safe-area-inset-bottom) + 10px) calc(env(safe-area-inset-left) + 8px)}
+.topbar{height:28px;display:flex;align-items:center;gap:8px;color:var(--muted);font-size:11px;letter-spacing:.06em;text-transform:uppercase;font-weight:760}
+.brand{color:#e0f2fe;white-space:nowrap}.spacer{flex:1}.status{color:var(--green);white-space:nowrap;text-align:right;font-variant-numeric:tabular-nums}
+.tapStart{border:1px solid rgba(52,211,153,.36);border-radius:999px;background:rgba(52,211,153,.12);padding:5px 10px;color:#d1fae5;font-size:12px;font-weight:780;white-space:nowrap}.tapStart.hidden{display:none}
+.screen{min-height:calc(100svh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 18px);display:flex;flex-direction:column;gap:8px}
+.hero{flex:1;min-height:0;display:grid;grid-template-columns:minmax(340px,1.05fr) minmax(300px,.95fr);gap:8px}
+.card{position:relative;overflow:hidden;border:1px solid rgba(148,163,184,.17);border-radius:18px;background:linear-gradient(180deg,rgba(15,23,42,.96),rgba(2,6,23,.98));box-shadow:inset 0 1px 0 rgba(255,255,255,.04)}
+.tuner{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:0;padding:10px 14px 12px}.label{font-size:10px;letter-spacing:.18em;color:var(--muted);font-weight:800;text-transform:uppercase}.freq{font-size:clamp(48px,10.5vw,92px);line-height:.9;font-weight:880;letter-spacing:-.085em;font-variant-numeric:tabular-nums;text-shadow:0 0 30px rgba(52,211,153,.13);margin-top:4px}.unit{font-size:.22em;color:var(--muted);letter-spacing:0;margin-left:7px}.note{font-size:clamp(20px,4vw,34px);font-weight:820;letter-spacing:-.03em;color:#e2e8f0;font-variant-numeric:tabular-nums;margin-top:2px}.cents{color:var(--muted);margin-left:8px}.meter{width:min(440px,96%);height:72px;position:relative;margin-top:8px}.meter canvas,.miniSpectrum canvas,.fingerCanvas{width:100%;height:100%;display:block}.meterCenter{position:absolute;left:50%;top:6px;bottom:12px;width:1px;background:rgba(255,255,255,.38);box-shadow:0 0 12px rgba(255,255,255,.2)}.meterLabels{position:absolute;left:0;right:0;bottom:0;display:flex;justify-content:space-between;color:var(--dim);font-size:10px;font-weight:700;padding:0 10px}.tunerFooter{width:100%;display:flex;align-items:center;gap:8px;color:var(--muted);font-size:11px;margin-top:4px}.clip{color:var(--red);font-weight:800;opacity:0}.clip.show{opacity:1}.sustainTop{margin-left:auto;color:#e2e8f0;font-weight:780;font-variant-numeric:tabular-nums}.miniSpectrum{display:flex;flex-direction:column;min-width:0;padding:10px 10px 9px}.miniHead{display:flex;align-items:center;gap:8px;margin-bottom:6px}.miniTitle{font-size:12px;font-weight:850;color:#e0f2fe;letter-spacing:.1em;text-transform:uppercase}.miniMeta{margin-left:auto;color:var(--muted);font-size:10px;font-variant-numeric:tabular-nums;text-align:right}.miniGraph{flex:1;min-height:130px;border:1px solid rgba(148,163,184,.12);border-radius:14px;overflow:hidden;background:rgba(2,6,23,.62)}.quickStats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:7px}.stat{border:1px solid rgba(148,163,184,.12);border-radius:12px;background:rgba(15,23,42,.58);padding:6px 7px;min-width:0}.statK{font-size:9px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;font-weight:760}.statV{font-size:14px;color:#f8fafc;font-weight:830;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}.fingerSection{padding-top:10px;display:grid;grid-template-columns:1fr;gap:8px;max-width:1100px;margin:0 auto}.fingerBlock{min-height:360px;padding:12px}.sectionHead{display:flex;align-items:start;gap:8px;margin-bottom:8px}.titleZh{font-size:15px;font-weight:880;color:#f8fafc}.subText{font-size:11px;color:var(--muted);line-height:1.35;margin-top:2px}.newBtn{margin-left:auto;border:1px solid rgba(148,163,184,.18);border-radius:999px;background:rgba(15,23,42,.76);padding:7px 11px;font-size:12px;color:#e2e8f0;font-weight:800}.fingerGraph{height:250px;border:1px solid rgba(148,163,184,.12);border-radius:16px;overflow:hidden;background:rgba(2,6,23,.62)}.circleGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:8px}.circleCard{border:1px solid rgba(148,163,184,.13);border-radius:16px;background:rgba(15,23,42,.60);padding:9px;min-width:0}.circleHead{display:flex;align-items:baseline;gap:8px;margin-bottom:6px}.circleTitle{font-size:12px;font-weight:860;color:#f8fafc}.circleSub{font-size:10px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.circleWrap{height:250px;border:1px solid rgba(148,163,184,.10);border-radius:13px;background:rgba(2,6,23,.54);overflow:hidden}.circleCanvas{width:100%;height:100%;display:block}.fileBlock{padding:12px}.fileRow{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.fileInput{font-size:12px;color:#cbd5e1;max-width:100%}.fileNote{font-size:11px;color:var(--muted);line-height:1.4}.dataGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:8px}.box{border:1px solid rgba(148,163,184,.13);border-radius:14px;background:rgba(15,23,42,.60);padding:9px 10px;min-width:0}.boxTitle{font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);font-weight:800;margin-bottom:5px}.boxLine{font-size:12px;line-height:1.48;color:#e5eefb;font-variant-numeric:tabular-nums;word-break:break-word}.boxLine.muted{color:var(--muted)}.count{font-size:26px;line-height:1;font-weight:880;color:#f8fafc;margin-right:5px}.rotateHint{display:none;position:fixed;inset:0;z-index:30;background:#05070a;color:#e5eefb;align-items:center;justify-content:center;text-align:center;padding:28px}.rotateHint .inner{max-width:320px}.rotateHint h2{margin:0 0 8px;font-size:22px}.rotateHint p{margin:0;color:var(--muted);line-height:1.55}
+@media (orientation:portrait) and (max-width:680px){.rotateHint{display:flex}}
+@media (max-height:390px) and (orientation:landscape){
+  #app{padding-top:max(4px,env(safe-area-inset-top));padding-bottom:max(6px,env(safe-area-inset-bottom));padding-left:calc(env(safe-area-inset-left) + 6px);padding-right:calc(env(safe-area-inset-right) + 6px)}
+  .topbar{height:24px;font-size:10px}.hero{gap:6px}.card{border-radius:15px}.tuner{padding:7px 10px}.freq{font-size:clamp(44px,11vw,84px)}.note{font-size:clamp(18px,4vw,30px)}.meter{height:58px;margin-top:5px}.tunerFooter{font-size:10px}.miniSpectrum{padding:8px}.miniGraph{min-height:108px}.quickStats{gap:5px}.stat{padding:5px 6px}.statV{font-size:12px}.fingerBlock{min-height:330px}.fingerGraph{height:220px}.dataGrid{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.boxLine{font-size:11px}
 }
-@media (max-height:680px){.freq{font-size:clamp(64px,22vw,116px)}.meter{height:90px}.tunerCard{min-height:260px}.spectrumCard{height:116px}.scrollCue{display:none}}
+@media (max-width:760px){
+  body{overflow-y:auto}.hero{grid-template-columns:1fr;grid-template-rows:minmax(260px,.8fr) minmax(180px,.55fr)}.screen{min-height:auto}.dataGrid{grid-template-columns:1fr}.circleGrid{grid-template-columns:1fr}.fingerGraph{height:220px}
+}
+
+.fingerTuneRow{display:grid;grid-template-columns:minmax(0,1fr) 58px;gap:8px;align-items:stretch}
+.sensitivityPanel{border:1px solid rgba(148,163,184,.12);border-radius:16px;background:rgba(15,23,42,.58);display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:8px 6px;min-height:250px}
+.sensLabel{font-size:10px;color:var(--muted);font-weight:820;letter-spacing:.11em;writing-mode:vertical-rl;text-orientation:mixed;white-space:nowrap;text-transform:uppercase}
+.sensValue{font-size:12px;color:#e2e8f0;font-weight:860;font-variant-numeric:tabular-nums;white-space:nowrap}
+.sensitivitySlider{flex:1;min-height:142px;margin:8px 0;accent-color:#34d399;writing-mode:bt-lr;-webkit-appearance:slider-vertical;width:28px}
+@supports not (-webkit-appearance: slider-vertical){.sensitivitySlider{transform:rotate(-90deg);width:150px;height:28px;margin:64px -58px}}
+@media (max-width:760px){.fingerTuneRow{grid-template-columns:minmax(0,1fr) 52px}.sensitivityPanel{min-height:220px}.sensLabel{font-size:9px}}
+
+.boxLine .primary{display:block;font-size:13px;font-weight:860;color:#f8fafc;line-height:1.32}
+.boxLine .sub{display:block;margin-top:4px;color:var(--muted);font-size:11px;line-height:1.36}
+.boxLine .ok{color:#86efac}
+.boxLine .warn{color:#facc15}
+.boxLine .dim{color:var(--muted)}
+
 </style>
 </head>
 <body>
 <div id="app">
-  <main class="hero" id="hero">
-    <div class="topbar">
-      <div class="brand">Advanced Tuner</div>
-      <div class="spacer"></div>
-      <div id="status" class="status">Tap to enable</div>
-    </div>
-    <section class="tunerStage">
-      <div class="tunerCard" id="tunerCard">
-        <div class="readout">
-          <div class="smallLabel">Fundamental</div>
-          <div class="freq"><span id="freqValue">--</span><span class="unit">Hz</span></div>
-          <div class="note"><span id="noteValue">--</span><span id="centValue" class="cents">--¢</span></div>
-          <div class="meter">
-            <canvas id="meterCanvas" class="meterCanvas"></canvas>
-            <div class="meterCenter"></div>
-            <div class="meterLabels"><span>-50¢</span><span>0</span><span>+50¢</span></div>
-          </div>
+  <div class="topbar">
+    <div class="brand">Resonance Tuner</div>
+    <button id="startBtn" class="tapStart">點一下啟動麥克風</button>
+    <div class="spacer"></div>
+    <div id="status" class="status">待啟動</div>
+  </div>
+
+  <section class="screen">
+    <div class="hero">
+      <div class="card tuner" id="tunerCard">
+        <div class="label">Fundamental</div>
+        <div class="freq"><span id="freqValue">--</span><span class="unit">Hz</span></div>
+        <div class="note"><span id="noteValue">--</span><span id="centValue" class="cents">--¢</span></div>
+        <div class="meter">
+          <canvas id="meterCanvas"></canvas>
+          <div class="meterCenter"></div>
+          <div class="meterLabels"><span>-50¢</span><span>0</span><span>+50¢</span></div>
         </div>
-        <div class="tunerMeta">
-          <span id="clipWarn" class="clipWarn">Too loud · move phone away</span>
-          <span class="sustainBadge" id="sustainBadge">Sustain -- s</span>
-        </div>
-        <div id="enableTap" class="enableTap">
-          <button id="enableBtn" class="enableBtn">Tap to enable tuner</button>
-          <div id="hint" class="enableNote">Browser will ask for microphone access</div>
-        </div>
+        <div class="tunerFooter"><span id="clipWarn" class="clip">音量過大，手機離遠一點</span><span id="sustainTop" class="sustainTop">延音 -- s</span></div>
       </div>
-      <div class="spectrumCard">
-        <canvas id="liveSpectrumCanvas" class="spectrumCanvas"></canvas>
-        <div class="spectrumTitle">Live spectrum</div>
-        <div id="spectrumHint" class="spectrumHint">45 Hz–5 kHz</div>
-      </div>
-    </section>
-    <div class="scrollCue">向下查看指紋 · 5–15 秒穩定段</div>
-  </main>
-  <section class="fingerprintSection" id="fingerprintSection">
-    <div class="sectionHeader">
-      <div>
-        <div class="sectionTitle">頌缽指紋</div>
-        <div class="dataLine muted" id="windowInfo">等待敲擊</div>
-      </div>
-      <div class="sectionActions">
-        <button id="refreshFingerprintBtn" class="refreshBtn" type="button">下一顆</button>
-        <div class="sectionSub">典型頻譜<br>穩定範圍</div>
-      </div>
-    </div>
-    <div class="fingerPanel">
-      <div class="graphWrap"><canvas id="graphCanvas" class="graphCanvas"></canvas></div>
-      <div class="dataGrid">
-        <div class="dataBox">
-          <div class="dataTitle">明顯泛音</div>
-          <div class="peakCountLine"><span id="peakCount" class="peakCount">--</span><span>個明顯主共鳴峰</span></div>
-        </div>
-        <div class="dataBox">
-          <div class="dataTitle">泛音頻率 Hz</div>
-          <div id="peaksHz" class="dataLine">--</div>
-        </div>
-        <div class="dataBox">
-          <div class="dataTitle">倍率 / 倍頻位置</div>
-          <div id="peaksRatio" class="dataLine">--</div>
+
+      <div class="card miniSpectrum">
+        <div class="miniHead"><div class="miniTitle">Live spectrum</div><div id="miniMeta" class="miniMeta">即時回饋<br>45–5000 Hz</div></div>
+        <div class="miniGraph"><canvas id="spectrumCanvas"></canvas></div>
+        <div class="quickStats">
+          <div class="stat"><div class="statK">明顯泛音</div><div id="quickPeaks" class="statV">--</div></div>
+          <div class="stat"><div class="statK">資料量</div><div id="quickFrames" class="statV">0</div></div>
+          <div class="stat"><div class="statK">狀態</div><div id="quickState" class="statV">待啟動</div></div>
         </div>
       </div>
     </div>
   </section>
+
+  <section class="fingerSection">
+    <div class="card fingerBlock">
+      <div class="sectionHead"><div><div class="titleZh">頌缽指紋</div><div id="fingerInfo" class="subText">同一顆樂器會連續累積；換下一顆時按「下一顆」。</div></div><button id="newBowlBtn" class="newBtn">下一顆</button></div>
+      <div class="fingerTuneRow">
+        <div class="fingerGraph"><canvas id="fingerCanvas" class="fingerCanvas"></canvas></div>
+        <div class="sensitivityPanel" aria-label="峰值敏感度控制">
+          <div class="sensLabel">多抓</div>
+          <input id="peakSensitivity" class="sensitivitySlider" type="range" min="0" max="100" value="62" step="1" orient="vertical" aria-label="峰值敏感度">
+          <div id="peakSenseValue" class="sensValue">62</div>
+          <div class="sensLabel">穩定</div>
+        </div>
+      </div>
+      <div class="circleGrid">
+        <div class="circleCard"><div class="circleHead"><div class="circleTitle">泛音鏈圓</div><div class="circleSub">log 2 / 3 / 5 / 7 · 前 5 個</div></div><div class="circleWrap"><canvas id="harmonicCircleCanvas" class="circleCanvas"></canvas></div></div>
+        <div class="circleCard"><div class="circleHead"><div class="circleTitle">呼吸鏈圓</div><div class="circleSub">log 2 / 3 / 5 / 7 · 音量差</div></div><div class="circleWrap"><canvas id="pulseCircleCanvas" class="circleCanvas"></canvas></div></div>
+      </div>
+      <div class="dataGrid">
+        <div class="box"><div class="boxTitle">明顯泛音數量</div><div class="boxLine"><span id="peakCount" class="count">--</span><span class="muted">clear peaks</span></div></div>
+        <div class="box"><div class="boxTitle">中心主頻 F0</div><div id="baseBox" class="boxLine">--</div></div>
+        <div class="box"><div class="boxTitle">有效延音</div><div id="sustainBox" class="boxLine">--</div></div>
+        <div class="box"><div class="boxTitle">泛音清單</div><div id="peaksHz" class="boxLine">--</div></div>
+        <div class="box"><div class="boxTitle">相對主頻</div><div id="peaksRatio" class="boxLine">--</div></div>
+        <div class="box"><div class="boxTitle">圓周位置</div><div id="peaksPos" class="boxLine">--</div></div>
+        <div class="box"><div class="boxTitle">泛音圓模型</div><div id="orbitBox" class="boxLine">--</div></div>
+        <div class="box"><div class="boxTitle">小整數比例貼合</div><div id="fitBox" class="boxLine">--</div></div>
+        <div class="box"><div class="boxTitle">泛音內部關係</div><div id="internalBox" class="boxLine">--</div></div>
+        <div class="box"><div class="boxTitle">拍頻來源</div><div id="pulseBox" class="boxLine">--</div></div>
+        <div class="box"><div class="boxTitle">呼吸圓模型</div><div id="pulseFitBox" class="boxLine">--</div></div>
+        <div class="box"><div class="boxTitle">指紋摘要</div><div id="toneBox" class="boxLine">--</div></div>
+      </div>
+    </div>
+    <div class="card fileBlock">
+      <div class="sectionHead"><div><div class="titleZh">音檔測試</div><div class="subText">選擇 WAV / MP3 / M4A 後只分析前 15 秒，不播放、不上傳。</div></div></div>
+      <div class="fileRow"><input id="fileInput" class="fileInput" type="file" accept="audio/*"><span id="fileStatus" class="fileNote">可用來測試前 15 秒的指紋圖與圓圈動態。</span></div>
+    </div>
+  </section>
 </div>
+<div class="rotateHint"><div class="inner"><h2>建議橫向使用</h2><p>這版針對手機橫向畫面與瀏海安全區排版。請把手機轉成橫向。</p></div></div>
+
 <script>
 (() => {
   'use strict';
+  const $ = id => document.getElementById(id);
+  const els = {
+    startBtn:$('startBtn'), status:$('status'), freq:$('freqValue'), note:$('noteValue'), cents:$('centValue'), clip:$('clipWarn'), sustainTop:$('sustainTop'),
+    meter:$('meterCanvas'), spectrum:$('spectrumCanvas'), finger:$('fingerCanvas'),
+    quickPeaks:$('quickPeaks'), quickFrames:$('quickFrames'), quickState:$('quickState'), newBowl:$('newBowlBtn'), fingerInfo:$('fingerInfo'), peakCount:$('peakCount'), baseBox:$('baseBox'), sustainBox:$('sustainBox'),
+    peaksHz:$('peaksHz'), peaksRatio:$('peaksRatio'), peaksPos:$('peaksPos'), orbitBox:$('orbitBox'), fitBox:$('fitBox'), internalBox:$('internalBox'), pulseBox:$('pulseBox'), pulseFitBox:$('pulseFitBox'), toneBox:$('toneBox'), harmonicCircle:$('harmonicCircleCanvas'), pulseCircle:$('pulseCircleCanvas'), fileInput:$('fileInput'), fileStatus:$('fileStatus'), peakSensitivity:$('peakSensitivity'), peakSenseValue:$('peakSenseValue')
+  };
+  const ctx = { meter: els.meter.getContext('2d', {alpha:true}), spectrum: els.spectrum.getContext('2d', {alpha:false}), finger: els.finger.getContext('2d', {alpha:false}), harmonic: els.harmonicCircle.getContext('2d', {alpha:false}), pulse: els.pulseCircle.getContext('2d', {alpha:false}) };
 
-  const meterCanvas = document.getElementById('meterCanvas');
-  const meterCtx = meterCanvas.getContext('2d', { alpha: true });
-  const liveSpectrumCanvas = document.getElementById('liveSpectrumCanvas');
-  const liveSpectrumCtx = liveSpectrumCanvas.getContext('2d', { alpha: false });
-  const graphCanvas = document.getElementById('graphCanvas');
-  const graphCtx = graphCanvas.getContext('2d', { alpha: false });
+  const CFG = {
+    fftSize: 16384,
+    minFreq: 45,
+    maxFreq: 5000,
+    f0Min: 45,
+    f0Max: 900,
+    logBins: 300,
+    maxFrames: 700,
+    captureInterval: 0.12,
+    validAboveNoise: 8,
+    validRmsMin: -76,
+    dbMin: -105,
+    dbMax: -12,
+    peakProminence: 11,
+    maxListPeaks: 8,
+    maxMotionTracks: 5,
+    peakFloorBelowMax: 58,
+    peakTransientPenalty: 8,
+    peakMinProminence: 0.8,
+    peakMergeOctaves: 0.030,
+    activeFrameDropDb: 55,
+    pulseMin: 0.2,
+    pulseMax: 8.0,
+    pulseStep: 0.05,
+    fitToleranceCents: 35,
+    pulseToleranceCents: 180,
+    offlineFftSize: 8192,
+    offlineStep: 0.12,
+    maxFileSeconds: 15
+  };
 
-  const statusEl = document.getElementById('status');
-  const enableTap = document.getElementById('enableTap');
-  const enableBtn = document.getElementById('enableBtn');
-  const hintEl = document.getElementById('hint');
-  const freqValue = document.getElementById('freqValue');
-  const noteValue = document.getElementById('noteValue');
-  const centValue = document.getElementById('centValue');
-  const sustainBadge = document.getElementById('sustainBadge');
-  const clipWarn = document.getElementById('clipWarn');
-  const windowInfo = document.getElementById('windowInfo');
-  const peakCountEl = document.getElementById('peakCount');
-  const peaksHzEl = document.getElementById('peaksHz');
-  const peaksRatioEl = document.getElementById('peaksRatio');
-  const spectrumHint = document.getElementById('spectrumHint');
-  const refreshFingerprintBtn = document.getElementById('refreshFingerprintBtn');
+  let audioCtx, analyser, freqData, timeData, sampleRate=44100, binHz=44100/CFG.fftSize;
+  let running=false, lastCapture=0, noiseDb=-82, rmsDb=-100, liveF0=null, smoothedF0=null, cents=0, meterNeedle=0, clipUntil=0;
+  let frames=[], f0Samples=[], stats=null, peaks=[], harmonicStats=null, pulseStats=null, toneText='--', sustain=null, lastStatsAt=0, prevRms=-100, activeSource='idle';
+  const motion = {
+    trailSeconds: 18,
+    lastTs: null,
+    source: 'idle',
+    harmonic: { ready:false, trackId:null, tracks:[], groups:[], phase:0, spinHz:0, rawDetune:0, radius:0.55, breathHz:0.12, breathDepth:0.04, breathPhase:0, label:'--', sub:'--', centerLabel:'F0', trail:[], current:null, lastSample:0 },
+    pulse: { ready:false, trackId:null, tracks:[], groups:[], phase:0, spinHz:0, rawDetune:0, radius:0.55, breathHz:0.28, breathDepth:0.08, breathPhase:1.7, label:'--', sub:'--', centerLabel:'main', trail:[], current:null, lastSample:0 }
+  };
 
-  const MIN_FREQ = 45;
-  const MAX_FREQ = 5000;
-  const F0_MIN = 45;
-  const F0_MAX = 900;
-  const FFT_SIZE = 16384;
-  const HIT_REFRACTORY = 1.4;
-  const FINGER_START = 5.0;
-  const FINGER_END = 15.0;
-  const MAX_LIST_PEAKS = 8;
-  const MAX_ANALYZED_PEAKS = 16;
-  const DB_MIN = -95;
-  const DB_MAX = -10;
+  els.startBtn.addEventListener('click', startAudio);
+  els.newBowl.addEventListener('click', resetBowl);
+  els.fileInput.addEventListener('click', ev => ev.stopPropagation());
+  els.fileInput.addEventListener('change', handleFileInput);
+  els.peakSensitivity.addEventListener('input', handleSensitivityInput);
 
-  let audioCtx = null;
-  let analyser = null;
-  let freqData = null;
-  let timeData = null;
-  let sampleRate = 44100;
-  let binHz = 44100 / FFT_SIZE;
-
-  let running = false;
-  let sessionStart = 0;
-  let lastHitTime = -999;
-  let sessionPeakDb = -Infinity;
-  let noiseFloorDb = -82;
-  let rmsDb = -100;
-  let prevRmsDb = -100;
-  let liveF0 = null;
-  let lockedF0 = null;
-  let currentCents = 0;
-  let meterCents = 0;
-  let stableFrames = [];
-  let lockFrames = [];
-  let fingerprint = null;
-  let sustainSeconds = null;
-  let lastFingerprintAt = 0;
-  let clippedUntil = 0;
-
-  enableBtn.addEventListener('click', start);
-  refreshFingerprintBtn.addEventListener('click', resetForNextBowl);
-  window.addEventListener('resize', () => {
-    drawMeter();
-    drawLiveSpectrum();
-    drawFingerprint();
-  }, { passive: true });
-
-  async function start() {
-    hintEl.textContent = 'Requesting microphone…';
-    if (!window.isSecureContext) {
-      hintEl.textContent = 'iOS / Safari needs HTTPS for microphone access.';
-      return;
+  function handleSensitivityInput(){
+    els.peakSenseValue.textContent = String(els.peakSensitivity.value);
+    if (frames.length >= 8) {
+      recomputeStats();
+      updateText();
     }
-    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-      hintEl.textContent = 'This browser does not provide microphone access.';
-      return;
-    }
-    try {
-      audioCtx = new (window.AudioContext || window.webkitAudioContext)({ latencyHint: 'interactive' });
-      const stream = await navigator.mediaDevices.getUserMedia({
-        audio: {
-          echoCancellation: false,
-          noiseSuppression: false,
-          autoGainControl: false,
-          channelCount: 1
-        }
-      });
+    drawAll();
+  }
+
+  function getPeakTuning(){
+    const s = clamp(Number(els.peakSensitivity.value || 62) / 100, 0, 1);
+    return {
+      sensitivity: s,
+      floorBelowMax: lerp(34, 76, s),
+      transientPenalty: lerp(16, 2, s),
+      minProminence: lerp(2.4, 0.18, s),
+      mergeOctaves: lerp(0.050, 0.016, s),
+      activeFrameDropDb: lerp(35, 76, s),
+      noisePad: lerp(14, 3, s),
+      peakFloorMin: lerp(-82, -98, s),
+      maxCandidates: Math.round(lerp(12, 36, s))
+    };
+  }
+
+  document.addEventListener('click', ev => {
+    if (ev.target && ev.target.closest && ev.target.closest('.fileBlock')) return;
+    if (!running) startAudio();
+  }, {passive:true});
+  window.addEventListener('resize', drawAll, {passive:true});
+  window.addEventListener('orientationchange', () => setTimeout(drawAll, 250), {passive:true});
+  requestAnimationFrame(animationLoop);
+
+  async function startAudio(){
+    if (running) return;
+    if (!window.isSecureContext){ els.status.textContent='需要 HTTPS'; els.quickState.textContent='需要 HTTPS'; return; }
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){ els.status.textContent='沒有麥克風 API'; els.quickState.textContent='不支援'; return; }
+    try{
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)({latencyHint:'interactive'});
+      const stream = await navigator.mediaDevices.getUserMedia({ audio:{echoCancellation:false, noiseSuppression:false, autoGainControl:false, channelCount:1}, video:false });
       if (audioCtx.state === 'suspended') await audioCtx.resume();
       const source = audioCtx.createMediaStreamSource(stream);
       analyser = audioCtx.createAnalyser();
-      analyser.fftSize = FFT_SIZE;
-      analyser.smoothingTimeConstant = 0.54;
+      analyser.fftSize = CFG.fftSize;
+      analyser.smoothingTimeConstant = 0.42;
       analyser.minDecibels = -110;
       analyser.maxDecibels = -5;
       source.connect(analyser);
-      sampleRate = audioCtx.sampleRate;
+      sampleRate = audioCtx.sampleRate || 44100;
       binHz = sampleRate / analyser.fftSize;
       freqData = new Float32Array(analyser.frequencyBinCount);
       timeData = new Float32Array(analyser.fftSize);
       running = true;
-      enableTap.classList.add('hidden');
-      statusEl.textContent = 'Listening';
+      activeSource = 'live';
+      motion.source = 'live';
+      els.startBtn.classList.add('hidden');
+      els.status.textContent = 'Listening';
+      els.quickState.textContent = 'Listening';
       requestAnimationFrame(tick);
-    } catch (err) {
-      hintEl.textContent = 'Microphone failed: ' + (err && err.message ? err.message : String(err));
+    }catch(err){
+      els.status.textContent = '麥克風失敗';
+      els.quickState.textContent = '失敗';
+      console.error(err);
     }
   }
 
-  function tick() {
+  function resetBowl(){
+    frames=[]; f0Samples=[]; stats=null; peaks=[]; harmonicStats=null; pulseStats=null; toneText='--'; sustain=null; lastStatsAt=0; liveF0=null; smoothedF0=null;
+    resetMotion();
+    activeSource = running ? 'live' : 'idle';
+    motion.source = activeSource;
+    els.status.textContent = running ? '下一顆 · Listening' : '待啟動';
+    els.quickState.textContent = running ? 'Ready' : '待啟動';
+    updateText(); drawAll();
+  }
+
+  function tick(){
     if (!running) return;
+    if (activeSource !== 'live') { requestAnimationFrame(tick); return; }
     analyser.getFloatFrequencyData(freqData);
     analyser.getFloatTimeDomainData(timeData);
     const now = audioCtx.currentTime;
-    prevRmsDb = rmsDb;
     rmsDb = computeRmsDb(timeData);
+    if (rmsDb < noiseDb + 6) noiseDb = noiseDb * 0.985 + rmsDb * 0.015;
+    if (detectClip(timeData)) clipUntil = now + 1.2;
+    els.clip.classList.toggle('show', now < clipUntil);
 
-    if (detectClipping(timeData)) clippedUntil = now + 1.2;
-    clipWarn.classList.toggle('show', now < clippedUntil);
-
-    updateNoiseFloor(now);
-    const f0Candidate = estimateF0FromSpectrum(freqData);
-    if (f0Candidate) liveF0 = liveF0 ? liveF0 * 0.78 + f0Candidate * 0.22 : f0Candidate;
-
-    if (shouldStartHit(now)) startNewHit(now);
-
-    if (sessionStart > 0) {
-      const t = now - sessionStart;
-      sessionPeakDb = Math.max(sessionPeakDb, rmsDb);
-      if (t >= 0.35 && t <= 2.2) lockFrames.push(copySpectrum(freqData));
-      if (t >= FINGER_START && t <= FINGER_END && rmsDb > noiseFloorDb + 8) stableFrames.push({ rmsDb, spectrum: copySpectrum(freqData) });
-      if (!lockedF0 && t > 1.1 && lockFrames.length >= 4) lockedF0 = estimateF0FromFrames(lockFrames) || liveF0;
-      if (t >= FINGER_START && now - lastFingerprintAt > 0.55) {
-        fingerprint = buildFingerprint(stableFrames, lockedF0 || liveF0);
-        lastFingerprintAt = now;
-      }
-      updateSustain(t);
-      updateWindowInfo(t);
+    const f0 = estimateF0();
+    if (f0) {
+      liveF0 = f0;
+      smoothedF0 = smoothedF0 ? smoothedF0 * 0.78 + f0 * 0.22 : f0;
+      const ni = noteInfo(smoothedF0); cents = ni.cents;
+      els.freq.textContent = smoothedF0.toFixed(smoothedF0 < 100 ? 1 : 0);
+      els.note.textContent = ni.name;
+      els.cents.textContent = formatCents(ni.cents);
+    } else {
+      cents = 24 * Math.sin(now * 1.7) + 7 * Math.sin(now * 3.1);
     }
+    meterNeedle = meterNeedle * 0.84 + clamp(cents, -50, 50) * 0.16;
 
-    updateTunerReadout();
-    drawMeter();
-    drawLiveSpectrum();
-    drawFingerprint();
+    const valid = rmsDb > Math.max(CFG.validRmsMin, noiseDb + CFG.validAboveNoise) && now > clipUntil;
+    updateSustain(now, valid);
+    if (valid && now - lastCapture > CFG.captureInterval) {
+      captureFrame(now);
+      lastCapture = now;
+    }
+    if (now - lastStatsAt > 0.8) {
+      recomputeStats();
+      lastStatsAt = now;
+      updateText();
+    }
+    drawAll();
+    prevRms = rmsDb;
     requestAnimationFrame(tick);
   }
 
-  function computeRmsDb(buffer) {
-    let sum = 0;
-    for (let i = 0; i < buffer.length; i++) sum += buffer[i] * buffer[i];
-    const rms = Math.sqrt(sum / buffer.length) || 1e-12;
-    return 20 * Math.log10(rms);
+  function captureFrame(now){
+    const arr = new Float32Array(CFG.logBins);
+    for (let i=0;i<CFG.logBins;i++){
+      const f = logLerp(CFG.minFreq, CFG.maxFreq, i/(CFG.logBins-1));
+      arr[i] = interpDb(f);
+    }
+    frames.push({t:now, db:arr, rms:rmsDb});
+    if (frames.length > CFG.maxFrames) frames.shift();
+    if (smoothedF0) {
+      f0Samples.push(smoothedF0);
+      if (f0Samples.length > 240) f0Samples.shift();
+    }
   }
 
-  function detectClipping(buffer) {
-    let count = 0;
-    for (let i = 0; i < buffer.length; i++) if (Math.abs(buffer[i]) > 0.985) count++;
-    return count > 16;
+  function recomputeStats(){
+    const statFrames = analysisFramesForStats();
+    if (statFrames.length < 8) { stats=null; peaks=[]; harmonicStats=null; pulseStats=null; toneText='--'; updateMotionModel(); return; }
+    const p20 = new Float32Array(CFG.logBins), med = new Float32Array(CFG.logBins), p90 = new Float32Array(CFG.logBins);
+    const vals = new Array(statFrames.length);
+    for (let b=0;b<CFG.logBins;b++){
+      for (let i=0;i<statFrames.length;i++) vals[i]=statFrames[i].db[b];
+      vals.sort((a,b)=>a-b);
+      p20[b]=percentileSorted(vals,.20); med[b]=percentileSorted(vals,.50); p90[b]=percentileSorted(vals,.90);
+    }
+    const smoothMed = smoothArray(med, 3);
+    const smoothP90 = smoothArray(p90, 2);
+    const tune = getPeakTuning();
+    const peakCurve = new Float32Array(CFG.logBins);
+    for (let i=0;i<CFG.logBins;i++){
+      // Median alone is too harsh for bowls: short-lived upper overtones disappear.
+      // Sensitivity controls how much transient P90 energy is allowed into peak picking.
+      peakCurve[i] = Math.max(smoothMed[i], smoothP90[i] - tune.transientPenalty);
+    }
+    const baseF0 = robustMedian(f0Samples) || findBaseFromSpectrum(peakCurve);
+    stats = {p20, med:smoothMed, p90:smoothP90, peakCurve, baseF0, frameCount:statFrames.length, peakFloor:null, tuning:tune};
+    peaks = findPeaks(peakCurve, baseF0);
+    harmonicStats = analyzeHarmonics(peaks, baseF0);
+    pulseStats = analyzePulses(baseF0);
+    toneText = characterizeSound();
+    updateMotionModel();
   }
 
-  function updateNoiseFloor(now) {
-    if (rmsDb < noiseFloorDb + 10 && now - lastHitTime > 2.5) noiseFloorDb = noiseFloorDb * 0.985 + rmsDb * 0.015;
+  function analysisFramesForStats(){
+    if (!frames.length) return frames;
+    let maxRms = -999;
+    for (const fr of frames) if (fr.rms > maxRms) maxRms = fr.rms;
+    const floor = maxRms - getPeakTuning().activeFrameDropDb;
+    const active = frames.filter(fr => fr.rms >= floor);
+    return active.length >= 8 ? active : frames;
   }
 
-  function shouldStartHit(now) {
-    if (now - lastHitTime < HIT_REFRACTORY) return false;
-    const rising = rmsDb - prevRmsDb;
-    return rmsDb > -43 && rmsDb > noiseFloorDb + 18 && rising > 7;
+  function findPeaks(curve, baseF0){
+    const out=[];
+    let maxDb = -999;
+    for (const v of curve) if (v>maxDb) maxDb=v;
+    const tune = getPeakTuning();
+    const minDb = Math.max(noiseDb + tune.noisePad, maxDb - tune.floorBelowMax, tune.peakFloorMin);
+    if (stats) stats.peakFloor = minDb;
+    for (let i=2;i<curve.length-2;i++){
+      const f = binToFreq(i);
+      if (f < CFG.minFreq || f > CFG.maxFreq) continue;
+      const v = curve[i];
+      if (v < minDb) continue;
+      const isPeak = v>=curve[i-1] && v>=curve[i+1] && (v>curve[i-2] || v>curve[i+2]);
+      if (!isPeak) continue;
+      const left = Math.min(curve[i-1], curve[i-2]);
+      const right = Math.min(curve[i+1], curve[i+2]);
+      const prom = v - Math.max(left,right);
+      if (prom < tune.minProminence) continue;
+      out.push({f, db:v, prom, weight:Math.max(0.2,v-minDb)});
+    }
+    out.sort((a,b)=>b.db-a.db);
+    const filtered=[];
+    for (const p of out){
+      if (filtered.some(q => Math.abs(Math.log2(p.f/q.f)) < tune.mergeOctaves)) continue;
+      filtered.push(p);
+      if (filtered.length >= tune.maxCandidates) break;
+    }
+    filtered.sort((a,b)=>a.f-b.f);
+    for (const p of filtered){
+      const ratio = baseF0 ? p.f / baseF0 : null;
+      p.ratio = ratio;
+      p.pos = ratio ? fract(Math.log2(ratio)) : null;
+      const bi = clamp(Math.round(Math.log(p.f/CFG.minFreq)/Math.log(CFG.maxFreq/CFG.minFreq)*(CFG.logBins-1)), 0, CFG.logBins-1);
+      p.bin = bi;
+      if (stats) {
+        p.medianDb = stats.med ? stats.med[bi] : p.db;
+        p.p90Db = stats.p90 ? stats.p90[bi] : p.db;
+        p.p20Db = stats.p20 ? stats.p20[bi] : p.db;
+        p.dynamicDb = Math.max(0, (p.p90Db || p.db) - (p.p20Db || p.db));
+        p.levelAboveFloor = stats.peakFloor != null ? p.db - stats.peakFloor : (p.weight || 0);
+      } else {
+        p.dynamicDb = 0;
+        p.levelAboveFloor = p.weight || 0;
+      }
+    }
+    return filtered;
   }
 
-  function startNewHit(now) {
-    lastHitTime = now;
-    sessionStart = now;
-    sessionPeakDb = rmsDb;
-    stableFrames = [];
-    lockFrames = [];
-    fingerprint = null;
-    sustainSeconds = null;
-    lockedF0 = null;
-    lastFingerprintAt = 0;
-    peakCountEl.textContent = '--';
-    peaksHzEl.textContent = '--';
-    peaksRatioEl.textContent = '--';
-    windowInfo.textContent = '已偵測敲擊 · 收集 5–15 秒穩定段';
-    statusEl.textContent = 'Hit detected';
-  }
-
-  function resetForNextBowl() {
-    sessionStart = 0;
-    sessionPeakDb = -Infinity;
-    stableFrames = [];
-    lockFrames = [];
-    fingerprint = null;
-    sustainSeconds = null;
-    lockedF0 = null;
-    lastFingerprintAt = 0;
-    peakCountEl.textContent = '--';
-    peaksHzEl.textContent = '--';
-    peaksRatioEl.textContent = '--';
-    windowInfo.textContent = '已準備好下一顆';
-    sustainBadge.textContent = 'Sustain -- s';
-    statusEl.textContent = running ? 'Listening' : 'Tap to enable';
-    drawFingerprint();
-  }
-
-  function copySpectrum(src) { return new Float32Array(src); }
-
-  function estimateF0FromSpectrum(spectrum) {
-    const start = Math.max(1, Math.floor(F0_MIN / binHz));
-    const end = Math.min(spectrum.length - 2, Math.ceil(F0_MAX / binHz));
-    const candidates = [];
-    const smooth = smoothArray(spectrum, 3);
-    for (let i = start + 1; i < end - 1; i++) {
-      const v = smooth[i];
-      if (v > smooth[i - 1] && v >= smooth[i + 1] && v > -78) candidates.push({ freq: refinePeakFreq(smooth, i), db: v });
+  function estimateF0(){
+    if (!freqData) return null;
+    const candidates=[];
+    let max=-999;
+    const minBin=Math.ceil(CFG.f0Min/binHz), maxBin=Math.min(freqData.length-2, Math.floor(CFG.f0Max/binHz));
+    for(let i=minBin;i<=maxBin;i++) if(freqData[i]>max) max=freqData[i];
+    const floor = Math.max(noiseDb + 10, max - 28, -82);
+    for(let i=minBin+2;i<maxBin-2;i++){
+      const v=freqData[i];
+      if (v < floor) continue;
+      if (v>freqData[i-1] && v>freqData[i+1] && v>=freqData[i-2] && v>=freqData[i+2]){
+        const f = parabolicFreq(i);
+        candidates.push({f,db:v});
+      }
     }
     if (!candidates.length) return null;
-    candidates.sort((a, b) => b.db - a.db);
-    const topDb = candidates[0].db;
-    const strong = candidates.filter(p => p.db > topDb - 14);
-    strong.sort((a, b) => a.freq - b.freq);
-    return strong[0].freq;
+    candidates.sort((a,b)=>b.db-a.db);
+    const strongest = candidates[0].db;
+    const lowClear = candidates.filter(p => p.db > strongest - 16).sort((a,b)=>a.f-b.f)[0];
+    return lowClear ? lowClear.f : candidates[0].f;
   }
 
-  function estimateF0FromFrames(frames) {
-    if (!frames.length) return null;
-    return estimateF0FromSpectrum(averageSpectrum(frames));
+  function updateSustain(now, valid){
+    if (!sustain) sustain={active:false,start:null,last:null,lastValue:null};
+    const onset = valid && (prevRms < noiseDb + 7 || rmsDb - prevRms > 9);
+    if (onset || (valid && !sustain.active)) { sustain.active=true; sustain.start=now; sustain.last=now; }
+    if (valid && sustain.active) sustain.last=now;
+    if (!valid && sustain.active && now - sustain.last > 0.65) { sustain.lastValue = Math.max(0, sustain.last - sustain.start); sustain.active=false; }
   }
 
-  function averageSpectrum(frames) {
-    const n = frames[0].length;
-    const out = new Float32Array(n);
-    for (let i = 0; i < n; i++) {
-      let power = 0;
-      for (const frame of frames) power += Math.pow(10, frame[i] / 10);
-      out[i] = 10 * Math.log10(power / frames.length + 1e-12);
-    }
-    return out;
-  }
-
-  function buildFingerprint(frames, baseFreq) {
-    if (!frames || frames.length < 6) return null;
-    const selected = trimFramesByLevel(frames);
-    if (selected.length < 4) return null;
-
-    const startBin = Math.max(1, Math.floor(MIN_FREQ / binHz));
-    const endBin = Math.min(selected[0].spectrum.length - 2, Math.ceil(MAX_FREQ / binHz));
-    const p20 = new Float32Array(endBin + 1);
-    const p50 = new Float32Array(endBin + 1);
-    const p90 = new Float32Array(endBin + 1);
-    const vals = [];
-
-    for (let i = startBin; i <= endBin; i++) {
-      vals.length = 0;
-      for (const fr of selected) vals.push(fr.spectrum[i]);
-      vals.sort((a, b) => a - b);
-      p20[i] = percentileSorted(vals, 0.20);
-      p50[i] = percentileSorted(vals, 0.50);
-      p90[i] = percentileSorted(vals, 0.90);
-    }
-
-    const smoothMedian = smoothArray(p50, 4);
-    const peaks = findSignificantPeaks(smoothMedian, baseFreq);
-    return { p20, p50: smoothMedian, p90, startBin, endBin, peaks, frameCount: selected.length };
-  }
-
-  function trimFramesByLevel(frames) {
-    if (frames.length < 6) return frames;
-    const levels = frames.map(f => f.rmsDb).slice().sort((a, b) => a - b);
-    const lo = percentileSorted(levels, 0.18);
-    const hi = percentileSorted(levels, 0.92);
-    return frames.filter(f => f.rmsDb >= lo && f.rmsDb <= hi);
-  }
-
-  function percentileSorted(sorted, p) {
-    if (!sorted.length) return -120;
-    const idx = (sorted.length - 1) * p;
-    const lo = Math.floor(idx), hi = Math.ceil(idx);
-    if (lo === hi) return sorted[lo];
-    const t = idx - lo;
-    return sorted[lo] * (1 - t) + sorted[hi] * t;
-  }
-
-  function smoothArray(arr, radius) {
-    const out = new Float32Array(arr.length);
-    for (let i = 0; i < arr.length; i++) {
-      let sum = 0, count = 0;
-      for (let k = -radius; k <= radius; k++) {
-        const j = i + k;
-        if (j >= 0 && j < arr.length && Number.isFinite(arr[j])) { sum += arr[j]; count++; }
-      }
-      out[i] = count ? sum / count : arr[i];
-    }
-    return out;
-  }
-
-  function findSignificantPeaks(spectrum, baseFreq) {
-    const start = Math.max(1, Math.floor(MIN_FREQ / binHz));
-    const end = Math.min(spectrum.length - 2, Math.ceil(MAX_FREQ / binHz));
-    let maxDb = -Infinity;
-    for (let i = start; i <= end; i++) maxDb = Math.max(maxDb, spectrum[i]);
-    const threshold = Math.max(maxDb - 36, -82);
-    const candidates = [];
-    for (let i = start + 2; i < end - 2; i++) {
-      const v = spectrum[i];
-      if (v < threshold) continue;
-      if (v >= spectrum[i - 1] && v >= spectrum[i + 1] && v > spectrum[i - 2] && v > spectrum[i + 2]) {
-        const leftBase = Math.min(spectrum[Math.max(start, i - 18)], spectrum[Math.max(start, i - 9)]);
-        const rightBase = Math.min(spectrum[Math.min(end, i + 18)], spectrum[Math.min(end, i + 9)]);
-        const prom = v - Math.max(leftBase, rightBase);
-        if (prom >= 4.5) candidates.push({ freq: refinePeakFreq(spectrum, i), db: v, prominence: prom });
-      }
-    }
-    candidates.sort((a, b) => b.db - a.db);
-    const merged = [];
-    for (const p of candidates) {
-      const close = merged.some(q => Math.abs(Math.log2(p.freq / q.freq)) < 0.035 || Math.abs(p.freq - q.freq) < 18);
-      if (!close) merged.push(p);
-      if (merged.length >= MAX_ANALYZED_PEAKS) break;
-    }
-    merged.sort((a, b) => a.freq - b.freq);
-    const f0 = baseFreq || (merged.length ? merged[0].freq : null);
-    for (const p of merged) {
-      p.ratio = f0 ? p.freq / f0 : null;
-      p.octavePosition = p.ratio ? frac(Math.log2(p.ratio)) : null;
-    }
-    return merged;
-  }
-
-  function refinePeakFreq(spectrum, i) {
-    const y0 = spectrum[i - 1], y1 = spectrum[i], y2 = spectrum[i + 1];
-    const denom = y0 - 2 * y1 + y2;
-    const delta = Math.abs(denom) > 1e-6 ? 0.5 * (y0 - y2) / denom : 0;
-    return (i + clamp(delta, -0.5, 0.5)) * binHz;
-  }
-
-  function frac(x) { return x - Math.floor(x); }
-
-  function updateSustain(t) {
-    if (sessionPeakDb === -Infinity) return;
-    const threshold = Math.max(noiseFloorDb + 8, sessionPeakDb - 45);
-    if (!sustainSeconds && t > 1 && rmsDb < threshold) sustainSeconds = t;
-    const s = sustainSeconds || t;
-    sustainBadge.textContent = 'Sustain ' + s.toFixed(1) + ' s';
-  }
-
-  function updateWindowInfo(t) {
-    if (t < FINGER_START) {
-      statusEl.textContent = 'Listening';
-      windowInfo.textContent = '收集中 · 5 秒後開始建立指紋';
-    } else if (t <= FINGER_END) {
-      statusEl.textContent = 'Analyzing';
-      windowInfo.textContent = '分析中 ' + t.toFixed(1) + ' 秒 · 5–15 秒穩定段';
+  function updateText(){
+    const base = stats && stats.baseF0;
+    const shown = peaks.slice(0, CFG.maxListPeaks);
+    els.quickPeaks.textContent = peaks.length ? String(peaks.length) : '--';
+    els.quickFrames.textContent = String(frames.length);
+    els.peakCount.innerHTML = peaks.length ? String(peaks.length) : '--';
+    els.baseBox.innerHTML = base ? `<span class="primary">${base.toFixed(base<100?1:0)} Hz · ${noteInfo(base).name} ${formatCents(noteInfo(base).cents)}</span><span class="sub">所有比例與旋轉都以這個點當中心</span>` : '--';
+    const sustainText = sustain ? (sustain.active ? Math.max(0, audioCtx.currentTime - sustain.start) : sustain.lastValue) : null;
+    const sus = sustainText ? `${sustainText.toFixed(1)} s` : '--';
+    els.sustainTop.textContent = `延音 ${sus}`;
+    els.sustainBox.innerHTML = sustainText ? `<span class="primary">${sus}</span><span class="sub">以前 15 秒內高於衰減門檻的區段估算</span>` : '--';
+    els.peaksHz.innerHTML = shown.length ? `<span class="primary">${shown.map(p => `${Math.round(p.f)} Hz`).join(' / ')}</span><span class="sub">目前敏感度 ${Math.round((stats?.tuning?.sensitivity || 0)*100)}；這些被選中泛音都會進入兩個圓圈疊合</span>` : '--';
+    els.peaksRatio.innerHTML = shown.length && base ? `<span class="primary">${shown.map(p => `×${p.ratio.toFixed(2)}`).join(' / ')}</span><span class="sub">每個泛音除以 F0</span>` : '--';
+    els.peaksPos.innerHTML = shown.length && base ? `<span class="primary">${shown.map(p => p.pos.toFixed(2)).join(' / ')}</span><span class="sub">0–1 對應倍頻相位位置</span>` : '--';
+    els.orbitBox.innerHTML = motion.harmonic.ready ? `<span class="primary">${motion.harmonic.label}</span><span class="sub">${motion.harmonic.sub}</span>` : '--';
+    els.fitBox.innerHTML = harmonicStats ? formatFitBox(harmonicStats) : '--';
+    els.internalBox.innerHTML = harmonicStats ? formatInternalBox(harmonicStats) : '--';
+    els.pulseBox.innerHTML = pulseStats ? `<span class="primary">${formatPulseBox(pulseStats)}</span><span class="sub">從振幅起伏估算，代表慢速呼吸/拍動</span>` : '--';
+    els.pulseFitBox.innerHTML = motion.pulse.ready ? `<span class="primary">${motion.pulse.label}</span><span class="sub">${motion.pulse.sub}</span>` : (pulseStats ? `<span class="primary">對齊 ${Math.round(pulseStats.alignment)} · ${pulseStats.ratioLabel}</span><span class="sub">包絡樣本不足，暫無穩定軌道</span>` : '--');
+    els.toneBox.innerHTML = toneText ? `<span class="primary">${toneText}</span><span class="sub">這是結構描述，不是品質評分</span>` : '--';
+    if (frames.length < 8) {
+      els.fingerInfo.textContent = '正在等待足夠的聲音資料。可以連續敲同一顆樂器累積。';
+      els.quickState.textContent = running ? '累積中' : '待啟動';
     } else {
-      statusEl.textContent = fingerprint ? 'Fingerprint ready' : 'Ready';
-      windowInfo.textContent = fingerprint ? '指紋完成 · 最近一次敲擊' : '等待可用尾音';
+      els.fingerInfo.textContent = `典型頻譜使用有效能量幀計算；目前採用 ${stats && stats.frameCount ? stats.frameCount : frames.length} / ${frames.length} 幀。`;
+      els.quickState.textContent = '累積中';
     }
   }
 
-  function updateTunerReadout() {
-    const displayF = lockedF0 || liveF0;
-    if (!displayF || !Number.isFinite(displayF)) {
-      freqValue.textContent = '--';
-      noteValue.textContent = '--';
-      centValue.textContent = '--¢';
-      currentCents = 0;
+
+
+  function formatScore(score){
+    const v = Math.round(score || 0);
+    const cls = v >= 75 ? 'ok' : (v >= 55 ? 'warn' : 'dim');
+    return `<span class="${cls}">${v}</span>`;
+  }
+
+  function formatFitBox(hs){
+    const rel = Math.round(hs.reliability || 0);
+    const relCls = rel >= 65 ? 'ok' : (rel >= 35 ? 'warn' : 'dim');
+    const note = rel < 35 ? '樣本少，分數容易偏高' : (rel < 65 ? '可參考，還需要更多峰' : '樣本覆蓋較夠');
+    const improvement = Math.round((hs.root2357 || 0) - (hs.root235 || 0));
+    const extra = improvement > 4 ? `；7 的加入有幫助 +${improvement}` : '；235 與 2357 差不多';
+    return `<span class="primary">235 ${formatScore(hs.root235)}｜2357 ${formatScore(hs.root2357)}</span><span class="sub">看泛音是否貼近小整數比。可信度 <span class="${relCls}">${rel}</span>/100，${note}${extra}</span>`;
+  }
+
+  function formatInternalBox(hs){
+    const group = hs.bestGroup ? `最佳群：${hs.bestGroup}` : '沒有穩定三峰群';
+    return `<span class="primary">內部貼合 ${formatScore(hs.internal2357)}</span><span class="sub">${group} · 峰數 ${hs.strongCount || 0}，跨度 ${trimNum(hs.spanOctaves || 0)} octave</span>`;
+  }
+
+
+  function analyzeHarmonics(pk, baseF0){
+    if (!baseF0 || pk.length < 1) return null;
+    const strong = pk.slice(0, CFG.maxListPeaks).filter(p => p.ratio && isFinite(p.ratio));
+    const c235 = ratioCandidates([2,3,5], 64);
+    const c2357 = ratioCandidates([2,3,5,7], 64);
+    const root235 = weightedFit(strong.map(p => ({ratio:p.ratio, weight:p.weight||1})), c235, CFG.fitToleranceCents);
+    const root2357 = weightedFit(strong.map(p => ({ratio:p.ratio, weight:p.weight||1})), c2357, CFG.fitToleranceCents);
+    const pairs=[];
+    for(let i=0;i<strong.length;i++){
+      for(let j=i+1;j<strong.length;j++){
+        const r=strong[j].f/strong[i].f;
+        if (r>1.03 && r<12) pairs.push({ratio:r, weight:Math.sqrt((strong[i].weight||1)*(strong[j].weight||1))});
+      }
+    }
+    const internal2357 = pairs.length ? weightedFit(pairs, c2357, CFG.fitToleranceCents) : 0;
+    let bestGroup='';
+    if (strong.length>=3){
+      let best=null;
+      for(let i=0;i<strong.length-2;i++){
+        for(let j=i+1;j<strong.length-1;j++){
+          for(let k=j+1;k<strong.length;k++){
+            const arr=[strong[i],strong[j],strong[k]];
+            const local=[];
+            for(let a=0;a<arr.length;a++) for(let b=a+1;b<arr.length;b++) local.push({ratio:arr[b].f/arr[a].f, weight:1});
+            const sc=weightedFit(local,c2357,CFG.fitToleranceCents);
+            if(!best||sc>best.score) best={score:sc, arr};
+          }
+        }
+      }
+      if(best && best.score>55) bestGroup = best.arr.map(p=>Math.round(p.f)).join('/') + ` Hz ≈ ${Math.round(best.score)}`;
+    }
+    for (const p of strong) {
+      p.near2357 = nearestRatio(p.ratio, c2357);
+      p.near235 = nearestRatio(p.ratio, c235);
+    }
+    const freqs = strong.map(p=>p.f).sort((a,b)=>a-b);
+    const spanOctaves = freqs.length>1 ? Math.log2(freqs[freqs.length-1]/freqs[0]) : 0;
+    const countReliability = clamp((strong.length - 2) / 6, 0, 1);
+    const spanReliability = clamp(spanOctaves / 2.0, 0, 1);
+    const reliability = 100 * Math.sqrt(countReliability * spanReliability);
+    return {root235, root2357, internal2357, bestGroup, candidates235:c235, candidates2357:c2357, strongCount:strong.length, spanOctaves, reliability};
+  }
+
+  function ratioCandidates(primes, maxN){
+    const allowed = n => {
+      if (n<1) return false;
+      let x=n;
+      for (const p of primes) while (x%p===0) x/=p;
+      return x===1;
+    };
+    const mapR=new Map();
+    for(let a=1;a<=maxN;a++){
+      if(!allowed(a)) continue;
+      for(let b=1;b<=maxN;b++){
+        if(!allowed(b)) continue;
+        const r=a/b;
+        if(r<0.125 || r>64) continue;
+        const g=gcd(a,b), n=a/g, d=b/g;
+        const key=`${n}/${d}`;
+        if(!mapR.has(key)) mapR.set(key,{ratio:n/d,label:d===1?`${n}:1`:`${n}/${d}`,complexity:n+d});
+      }
+    }
+    return [...mapR.values()].sort((x,y)=>x.ratio-y.ratio);
+  }
+
+  function nearestRatio(ratio, candidates){
+    let best=null;
+    for(const c of candidates){
+      const err=1200*Math.log2(ratio/c.ratio);
+      const ae=Math.abs(err);
+      const score=100*Math.exp(-Math.pow(ae/CFG.fitToleranceCents,2));
+      const rank=ae + c.complexity*0.15;
+      if(!best || rank<best.rank) best={...c, err, absErr:ae, score, rank};
+    }
+    return best;
+  }
+
+  function weightedFit(items, candidates, tol){
+    let sw=0, ss=0;
+    for(const item of items){
+      const n=nearestRatio(item.ratio,candidates);
+      const sc=100*Math.exp(-Math.pow(n.absErr/tol,2));
+      const w=Math.max(0.05,item.weight||1);
+      ss+=sc*w; sw+=w;
+    }
+    return sw?ss/sw:0;
+  }
+
+  function analyzePulses(baseF0){
+    if (frames.length < 20) return null;
+    const main = frames.map(fr => ({t:fr.t, v:fr.rms}));
+    const body = bandSeries(45,180);
+    const f0s = baseF0 ? bandSeries(baseF0*0.94, baseF0*1.06) : [];
+    let over=[];
+    const ovs = peaks.filter(p => !baseF0 || Math.abs(Math.log2(p.f/baseF0))>0.08).slice(0,4);
+    if (ovs.length) over = multiBandSeries(ovs.map(p => [p.f*0.965, p.f*1.035]));
+    const res = {
+      main: dominantPulse(main),
+      body: dominantPulse(body),
+      f0: dominantPulse(f0s),
+      overtone: dominantPulse(over)
+    };
+    const valid = Object.entries(res).filter(([,v])=>v && v.freq);
+    const base = res.main || res.body || res.f0 || valid[0]?.[1];
+    res.base = base || null;
+    res.alignment = 0;
+    res.ratioLabel='分散';
+    if(base && valid.length>=2){
+      const items=valid.map(([,v])=>({ratio:v.freq/base.freq, weight:v.amp||1}));
+      res.alignment = weightedFit(items, ratioCandidates([2,3,5,7],32), CFG.pulseToleranceCents);
+      const ratios = valid.map(([k,v]) => `${pulseName(k)} ${trimNum(v.freq)}Hz`).join(' / ');
+      res.ratioLabel = res.alignment>65 ? '接近小比例' : (res.alignment>40 ? '鬆散對齊' : '分散');
+      res.detail = ratios;
+    } else {
+      res.detail='--';
+    }
+    return res;
+  }
+
+  function bandSeries(f1,f2){
+    const out=[];
+    for(const fr of frames){
+      let sum=0,n=0;
+      for(let i=0;i<CFG.logBins;i++){
+        const f=binToFreq(i);
+        if(f>=f1&&f<=f2){ sum+=Math.pow(10, fr.db[i]/20); n++; }
+      }
+      if(n) out.push({t:fr.t, v:20*Math.log10(sum/n+1e-9)});
+    }
+    return out;
+  }
+
+  function multiBandSeries(bands){
+    const out=[];
+    for(const fr of frames){
+      let sum=0,n=0;
+      for(const [f1,f2] of bands){
+        for(let i=0;i<CFG.logBins;i++){
+          const f=binToFreq(i);
+          if(f>=f1&&f<=f2){ sum+=Math.pow(10, fr.db[i]/20); n++; }
+        }
+      }
+      if(n) out.push({t:fr.t, v:20*Math.log10(sum/n+1e-9)});
+    }
+    return out;
+  }
+
+  function dominantPulse(series){
+    if(!series || series.length<18) return null;
+    const t0=series[0].t, dur=series[series.length-1].t-t0;
+    if(dur<3) return null;
+    const vals=series.map(x=>x.v).sort((a,b)=>a-b);
+    const med=percentileSorted(vals,.5);
+    const centered=series.map(x=>({t:x.t-t0, v:x.v-med}));
+    let best=null;
+    for(let f=CFG.pulseMin; f<=CFG.pulseMax; f+=CFG.pulseStep){
+      if(f*dur<1.35) continue;
+      let cs=0,sn=0,sw=0;
+      for(const x of centered){
+        const a=2*Math.PI*f*x.t;
+        cs+=x.v*Math.cos(a); sn+=x.v*Math.sin(a); sw+=Math.abs(x.v);
+      }
+      const amp=2*Math.sqrt(cs*cs+sn*sn)/centered.length;
+      const score=amp*Math.min(1,(f*dur)/3);
+      if(!best||score>best.score) best={freq:f, amp, score};
+    }
+    if(!best || best.amp<0.45) return null;
+    return best;
+  }
+
+  function characterizeSound(){
+    if(!stats) return '--';
+    const tags=[];
+    if(sustain && ((sustain.active && audioCtx && audioCtx.currentTime-sustain.start>10) || sustain.lastValue>10)) tags.push('延音長');
+    if(peaks.length && peaks.length<=6) tags.push('泛音清楚');
+    if(peaks.length>10) tags.push('泛音密集');
+    if(harmonicStats && harmonicStats.root2357>75) tags.push((harmonicStats.reliability||0) < 35 ? '小整數貼合高但樣本少' : '小整數貼合高');
+    if(pulseStats && pulseStats.alignment>65) tags.push('呼吸對齊');
+    if(pulseStats && pulseStats.main && pulseStats.main.freq>4) tags.push('拍頻偏快');
+    return tags.length?tags.join(' · '):'資料累積中';
+  }
+
+  function formatPulseBox(ps){
+    const parts=[];
+    if(ps.body) parts.push(`低頻 ${trimNum(ps.body.freq)} Hz`);
+    if(ps.main) parts.push(`主要 ${trimNum(ps.main.freq)} Hz`);
+    if(ps.f0) parts.push(`主頻 ${trimNum(ps.f0.freq)} Hz`);
+    if(ps.overtone) parts.push(`泛音 ${trimNum(ps.overtone.freq)} Hz`);
+    return parts.length ? parts.join(' / ') : '--';
+  }
+
+  function pulseName(k){ return ({main:'主要',body:'低頻',f0:'主頻',overtone:'泛音'}[k]||k); }
+  function trimNum(x){ return x<10 ? x.toFixed(2).replace(/0$/,'').replace(/\.$/,'') : x.toFixed(1); }
+  function trimDb(x){ return (x<10 ? x.toFixed(1).replace(/0$/,'').replace(/\.$/,'') : x.toFixed(0)) + ' dB'; }
+
+
+  function resetMotion(){
+    for (const m of [motion.harmonic, motion.pulse]) {
+      m.ready=false; m.trackId=null; m.tracks=[]; m.groups=[]; m.phase=0; m.spinHz=0; m.rawDetune=0; m.trail=[]; m.current=null; m.lastSample=0; m.label='--'; m.sub='--';
+    }
+    motion.lastTs = null;
+  }
+
+  function updateMotionModel(){
+    const base = stats && stats.baseF0;
+    if (!base || !isFinite(base)) {
+      motion.harmonic.ready = false;
+      motion.pulse.ready = false;
       return;
     }
-    const note = freqToNote(displayF);
-    currentCents = note.cents;
-    meterCents = meterCents * 0.82 + currentCents * 0.18;
-    freqValue.textContent = displayF < 100 ? displayF.toFixed(1) : Math.round(displayF).toString();
-    noteValue.textContent = note.name;
-    centValue.textContent = (note.cents >= 0 ? '+' : '') + note.cents.toFixed(0) + '¢';
-    spectrumHint.textContent = 'F0 ' + formatHz(displayF) + ' Hz';
+    motion.source = activeSource;
+    updateHarmonicMotion(base);
+    updatePulseMotion();
   }
 
-  function freqToNote(freq) {
-    const names = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
-    const midiFloat = 69 + 12 * Math.log2(freq / 440);
-    const midi = Math.round(midiFloat);
-    const cents = (midiFloat - midi) * 100;
-    const octave = Math.floor(midi / 12) - 1;
-    return { name: names[((midi % 12) + 12) % 12] + octave, cents, midi };
+  function updateHarmonicMotion(base){
+    const m = motion.harmonic;
+    const selected = selectedOvertonePeaks(base);
+    if (!selected.length) { m.ready=false; m.tracks=[]; m.groups=[]; return; }
+    const prevGroups = new Map((m.groups || []).map(g => [g.id, g]));
+    const groups = [2,3,5,7].map(b => buildLogChainGroup({
+      id:`HLOG${b}`,
+      label:`log${b}`,
+      base:b,
+      selected,
+      reference:base,
+      prev:prevGroups.get(`HLOG${b}`),
+      mode:'harmonic'
+    }));
+    m.ready = groups.some(g => g.tracks.length);
+    m.groups = groups;
+    m.tracks = [];
+    m.centerLabel = `F0 ${Math.round(base)} Hz`;
+    m.label = `${selected.length} 個泛音 · 4 組 log 鏈`;
+    const loudest = selected[0];
+    m.sub = `由大到小接龍；最強 ${loudest ? Math.round(loudest.f) + 'Hz' : '--'}，尾端看毛刺`;
   }
 
-  function drawMeter() {
-    const { w, h } = resizeCanvas(meterCanvas, meterCtx);
-    meterCtx.clearRect(0, 0, w, h);
-    const cx = w / 2;
-    const y = h * 0.44;
-    const length = w * 0.84;
-    const x0 = cx - length / 2;
-    const x1 = cx + length / 2;
-
-    meterCtx.save();
-    meterCtx.strokeStyle = 'rgba(148,163,184,.28)';
-    meterCtx.lineWidth = 1;
-    meterCtx.beginPath(); meterCtx.moveTo(x0, y); meterCtx.lineTo(x1, y); meterCtx.stroke();
-
-    for (let c = -50; c <= 50; c += 10) {
-      const x = x0 + (c + 50) / 100 * length;
-      const major = c % 50 === 0 || c === 0;
-      meterCtx.strokeStyle = c === 0 ? 'rgba(255,255,255,.55)' : 'rgba(148,163,184,.28)';
-      meterCtx.lineWidth = c === 0 ? 2 : 1;
-      meterCtx.beginPath(); meterCtx.moveTo(x, y - (major ? 28 : 15)); meterCtx.lineTo(x, y + (major ? 28 : 15)); meterCtx.stroke();
-    }
-
-    const clamped = clamp(meterCents || 0, -50, 50);
-    const px = x0 + (clamped + 50) / 100 * length;
-    const grad = meterCtx.createLinearGradient(px, y - 50, px, y + 52);
-    grad.addColorStop(0, '#a7f3d0');
-    grad.addColorStop(1, '#34d399');
-    meterCtx.strokeStyle = grad;
-    meterCtx.lineWidth = 5;
-    meterCtx.lineCap = 'round';
-    meterCtx.shadowColor = 'rgba(52,211,153,.38)';
-    meterCtx.shadowBlur = 18;
-    meterCtx.beginPath(); meterCtx.moveTo(px, y - 52); meterCtx.lineTo(px, y + 52); meterCtx.stroke();
-    meterCtx.shadowBlur = 0;
-    meterCtx.fillStyle = Math.abs(clamped) < 5 ? '#34d399' : Math.abs(clamped) < 22 ? '#facc15' : '#fb7185';
-    meterCtx.beginPath(); meterCtx.arc(px, y, 6, 0, Math.PI * 2); meterCtx.fill();
-    meterCtx.restore();
+  function selectedOvertonePeaks(base){
+    if (!peaks || !peaks.length || !base) return [];
+    const strength = p => (p.levelAboveFloor != null ? p.levelAboveFloor : (p.weight || 1));
+    return peaks
+      .filter(p => p.f > base * 1.08 && p.f < CFG.maxFreq && p.ratio && isFinite(p.ratio))
+      .slice()
+      .sort((a,b) => strength(b) - strength(a))
+      .slice(0, CFG.maxMotionTracks || 5);
   }
 
-  function drawLiveSpectrum() {
-    const { w, h } = resizeCanvas(liveSpectrumCanvas, liveSpectrumCtx);
-    liveSpectrumCtx.fillStyle = '#030712';
-    liveSpectrumCtx.fillRect(0, 0, w, h);
-    const m = { l: 36, r: 12, t: 26, b: 24 };
-    const gw = Math.max(10, w - m.l - m.r);
-    const gh = Math.max(10, h - m.t - m.b);
-    drawGrid(liveSpectrumCtx, w, h, m, gw, gh, true);
-    if (!freqData) {
-      liveSpectrumCtx.fillStyle = 'rgba(148,163,184,.62)';
-      liveSpectrumCtx.font = '11px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif';
-      liveSpectrumCtx.fillText('Tap to enable live spectrum', m.l + 8, m.t + 20);
-      return;
-    }
-    drawSpectrumLine(liveSpectrumCtx, freqData, m, gw, gh, '#34d399', 1.7, 240);
-  }
-
-  function drawFingerprint() {
-    const { w, h } = resizeCanvas(graphCanvas, graphCtx);
-    graphCtx.fillStyle = '#030712';
-    graphCtx.fillRect(0, 0, w, h);
-    const m = { l: 44, r: 16, t: 14, b: 30 };
-    const gw = Math.max(10, w - m.l - m.r);
-    const gh = Math.max(10, h - m.t - m.b);
-    drawGrid(graphCtx, w, h, m, gw, gh, false);
-    if (!fingerprint) {
-      graphCtx.fillStyle = 'rgba(148,163,184,.72)';
-      graphCtx.font = '12px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif';
-      graphCtx.fillText('等待 5–15 秒穩定共鳴段', m.l + 8, m.t + 22);
-      return;
-    }
-
-    const { p20, p50, p90, startBin, endBin, peaks } = fingerprint;
-    const points = makeLogPoints(startBin, endBin, 260);
-    const xForFreq = f => m.l + (Math.log(f / MIN_FREQ) / Math.log(MAX_FREQ / MIN_FREQ)) * gw;
-    const yForDb = db => m.t + (1 - (clamp(db, DB_MIN, DB_MAX) - DB_MIN) / (DB_MAX - DB_MIN)) * gh;
-
-    graphCtx.save();
-    graphCtx.beginPath();
-    points.forEach((bin, idx) => {
-      const x = xForFreq(bin * binHz);
-      const y = yForDb(p90[bin]);
-      if (idx === 0) graphCtx.moveTo(x, y); else graphCtx.lineTo(x, y);
+  function updatePulseMotion(){
+    const m = motion.pulse;
+    const base = stats && stats.baseF0;
+    const selected = selectedOvertonePeaks(base);
+    if (!selected.length) { m.ready=false; m.tracks=[]; m.groups=[]; return; }
+    const basePulse = (pulseStats && pulseStats.base && pulseStats.base.freq) ? pulseStats.base.freq : null;
+    const fallbackPulse = basePulse || 0.33;
+    const pulseItems = selected.map((p, idx) => {
+      const series = bandSeries(p.f * 0.965, p.f * 1.035);
+      const pulse = dominantPulse(series);
+      const pf = pulse && pulse.freq ? pulse.freq : fallbackPulse;
+      return {...p, pulse, pulseFreq:pf, pulseConfidence:pulse ? 1 : 0.38, pulseIndex:idx};
     });
-    for (let i = points.length - 1; i >= 0; i--) graphCtx.lineTo(xForFreq(points[i] * binHz), yForDb(p20[points[i]]));
-    graphCtx.closePath();
-    graphCtx.fillStyle = 'rgba(45,212,191,.18)';
-    graphCtx.fill();
+    const prevGroups = new Map((m.groups || []).map(g => [g.id, g]));
+    const groups = [2,3,5,7].map(b => buildLogChainGroup({
+      id:`PLOG${b}`,
+      label:`log${b}`,
+      base:b,
+      selected:pulseItems,
+      reference:base,
+      prev:prevGroups.get(`PLOG${b}`),
+      mode:'pulse'
+    }));
+    m.ready = groups.some(g => g.tracks.length);
+    m.groups = groups;
+    m.tracks = [];
+    m.centerLabel = `F0 ${Math.round(base)} Hz`;
+    m.label = `${selected.length} 個泛音包絡 · 4 組 log 鏈`;
+    const strongestBreath = selected.slice().sort((a,b)=>(b.dynamicDb||0)-(a.dynamicDb||0))[0];
+    const pulseNote = basePulse ? `；主拍 ${trimNum(basePulse)}Hz` : '；未偵測到穩定主拍，使用包絡估算';
+    m.sub = `角度=頻率比例；長度=音量差；最大差 ${strongestBreath ? Math.round(strongestBreath.f) + 'Hz ' + trimDb(strongestBreath.dynamicDb||0) : '--'}${pulseNote}`;
+  }
 
-    graphCtx.beginPath();
-    points.forEach((bin, idx) => {
-      const x = xForFreq(bin * binHz);
-      const y = yForDb(p50[bin]);
-      if (idx === 0) graphCtx.moveTo(x, y); else graphCtx.lineTo(x, y);
+  function buildLogChainGroup({id,label,base,selected,reference,prev,mode}){
+    const prevTracks = new Map(((prev && prev.tracks) || []).map(t => [t.id, t]));
+    const levels = selected.map(p => p.levelAboveFloor != null ? p.levelAboveFloor : (p.weight || 1));
+    const dynamics = selected.map(p => p.dynamicDb || 0);
+    const maxLevel = Math.max(1, ...levels);
+    const maxDyn = Math.max(1, ...dynamics);
+    const rawLens = selected.map(p => {
+      const levelNorm = clamp((p.levelAboveFloor != null ? p.levelAboveFloor : (p.weight || 1)) / maxLevel, 0, 1);
+      const dynNorm = clamp((p.dynamicDb || 0) / maxDyn, 0, 1);
+      return mode === 'pulse' ? Math.max(0.18, Math.pow(dynNorm || levelNorm, 0.55)) : Math.max(0.16, Math.pow(levelNorm, 0.58));
     });
-    graphCtx.strokeStyle = '#34d399';
-    graphCtx.lineWidth = 2.2;
-    graphCtx.shadowColor = 'rgba(52,211,153,.22)';
-    graphCtx.shadowBlur = 10;
-    graphCtx.stroke();
-    graphCtx.shadowBlur = 0;
-
-    const showPeaks = peaks.slice(0, MAX_LIST_PEAKS);
-    graphCtx.font = '10px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif';
-    graphCtx.textAlign = 'center';
-    graphCtx.textBaseline = 'bottom';
-    for (const p of showPeaks) {
-      const x = xForFreq(p.freq);
-      const y = yForDb(p.db);
-      graphCtx.strokeStyle = 'rgba(125,211,252,.48)';
-      graphCtx.lineWidth = 1;
-      graphCtx.beginPath(); graphCtx.moveTo(x, m.t); graphCtx.lineTo(x, m.t + gh); graphCtx.stroke();
-      graphCtx.fillStyle = '#bfdbfe';
-      graphCtx.fillText(formatHz(p.freq), x, Math.max(m.t + 12, y - 4));
-    }
-    graphCtx.restore();
-    updatePeakText(peaks);
-  }
-
-  function drawSpectrumLine(ctx, spectrum, m, gw, gh, color, width, count) {
-    const startBin = Math.max(1, Math.floor(MIN_FREQ / binHz));
-    const endBin = Math.min(spectrum.length - 2, Math.ceil(MAX_FREQ / binHz));
-    const points = makeLogPoints(startBin, endBin, count);
-    const xForFreq = f => m.l + (Math.log(f / MIN_FREQ) / Math.log(MAX_FREQ / MIN_FREQ)) * gw;
-    const yForDb = db => m.t + (1 - (clamp(db, DB_MIN, DB_MAX) - DB_MIN) / (DB_MAX - DB_MIN)) * gh;
-    ctx.save();
-    ctx.beginPath();
-    points.forEach((bin, idx) => {
-      const x = xForFreq(bin * binHz);
-      const y = yForDb(spectrum[bin]);
-      if (idx === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    const lenSum = rawLens.reduce((a,b)=>a+b,0) || 1;
+    const tracks = selected.map((p, idx) => {
+      const levelNorm = clamp((p.levelAboveFloor != null ? p.levelAboveFloor : (p.weight || 1)) / maxLevel, 0, 1);
+      const dynNorm = clamp((p.dynamicDb || 0) / maxDyn, 0, 1);
+      const ratio = p.f / reference;
+      const coord = Math.log(Math.max(1e-9, ratio)) / Math.log(base);
+      const pos = fract(coord);
+      const residual = signedFract(coord);
+      const trackId = `${mode}:${label}:${Math.round(p.f)}`;
+      const old = prevTracks.get(trackId);
+      const phase0 = -Math.PI/2 + pos * Math.PI * 2;
+      const conf = mode === 'pulse' ? (p.pulseConfidence || 0.38) : 1;
+      return {
+        id:trackId,
+        type:mode,
+        source:p,
+        phase: old ? old.phase : phase0,
+        spinHz: visualLogSpinHz(residual),
+        rawResidual: residual,
+        segment: 0.82 * rawLens[idx] / lenSum,
+        breathHz: mode === 'pulse'
+          ? clamp(p.pulseFreq || (0.18 + Math.abs(residual) * 0.9 + idx * 0.035), 0.05, 2.4)
+          : clamp((pulseStats && pulseStats.base && pulseStats.base.freq) || 0.16, 0.05, 1.5),
+        breathDepth: mode === 'pulse' ? (0.02 + 0.16 * dynNorm) : (0.01 + 0.09 * dynNorm),
+        breathPhase: old ? old.breathPhase : idx * 1.257 + base * 0.37,
+        alpha: (0.24 + 0.70 * Math.sqrt(mode === 'pulse' ? (dynNorm || levelNorm) : levelNorm)) * conf,
+        width: 0.55 + 2.1 * Math.sqrt(mode === 'pulse' ? (dynNorm || levelNorm) : levelNorm),
+        colorPos: pos,
+        label: `${Math.round(p.f)}`,
+        detail: mode === 'pulse'
+          ? `${label} ×${p.ratio ? p.ratio.toFixed(2) : '--'} / 差 ${trimDb(p.dynamicDb || 0)}${p.pulse ? ' / 拍 '+trimNum(p.pulseFreq)+'Hz' : ''}`
+          : `${label} ×${p.ratio ? p.ratio.toFixed(2) : '--'} / 音量 +${Math.round(p.levelAboveFloor || 0)}dB`,
+      };
     });
-    ctx.strokeStyle = color;
-    ctx.lineWidth = width;
-    ctx.shadowColor = 'rgba(52,211,153,.18)';
-    ctx.shadowBlur = 8;
-    ctx.stroke();
-    ctx.restore();
+    return {
+      id, label, base, mode,
+      tracks,
+      chainTrail: prev && prev.chainTrail ? prev.chainTrail : [],
+      currentPoints: prev && prev.currentPoints ? prev.currentPoints : [],
+      endPoint: prev && prev.endPoint ? prev.endPoint : null,
+      lastSample: prev && prev.lastSample ? prev.lastSample : 0
+    };
   }
 
-  function drawGrid(ctx, w, h, m, gw, gh, compact) {
-    ctx.save();
-    ctx.strokeStyle = 'rgba(148,163,184,.14)';
-    ctx.lineWidth = 1;
-    const freqTicks = [50, 100, 200, 500, 1000, 2000, 5000];
-    ctx.font = (compact ? '9px' : '10px') + ' -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif';
-    ctx.fillStyle = 'rgba(148,163,184,.62)';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'top';
-    for (const f of freqTicks) {
-      if (f < MIN_FREQ || f > MAX_FREQ) continue;
-      const x = m.l + (Math.log(f / MIN_FREQ) / Math.log(MAX_FREQ / MIN_FREQ)) * gw;
-      ctx.beginPath(); ctx.moveTo(x, m.t); ctx.lineTo(x, m.t + gh); ctx.stroke();
-      ctx.fillText(f >= 1000 ? (f / 1000) + 'k' : String(f), x, m.t + gh + 6);
-    }
-    ctx.textAlign = 'right';
-    ctx.textBaseline = 'middle';
-    const dbTicks = compact ? [-40, -70] : [-20, -40, -60, -80];
-    for (const db of dbTicks) {
-      const y = m.t + (1 - (db - DB_MIN) / (DB_MAX - DB_MIN)) * gh;
-      ctx.beginPath(); ctx.moveTo(m.l, y); ctx.lineTo(m.l + gw, y); ctx.stroke();
-      ctx.fillText(db + 'dB', m.l - 6, y);
-    }
-    ctx.restore();
+  function signedFract(x){
+    const n = Math.round(x);
+    return clamp(x - n, -0.5, 0.5);
   }
 
-  function makeLogPoints(startBin, endBin, count) {
-    const bins = [];
-    const f0 = Math.max(MIN_FREQ, startBin * binHz);
-    const f1 = Math.min(MAX_FREQ, endBin * binHz);
-    let last = -1;
-    for (let i = 0; i < count; i++) {
-      const t = i / (count - 1);
-      const f = f0 * Math.pow(f1 / f0, t);
-      const bin = Math.max(startBin, Math.min(endBin, Math.round(f / binHz)));
-      if (bin !== last) bins.push(bin);
-      last = bin;
-    }
-    return bins;
+  function visualLogSpinHz(residual){
+    if (!isFinite(residual)) return 0;
+    const a = Math.abs(residual);
+    // log2/3/5/7 壓回一圈後，raw residual 常很小；
+    // 這裡用視覺速度放大，不改變位置與關係，只讓鏈式結構跑得看得見。
+    if (a < 0.0015) return 0;
+    const hz = 0.10 + Math.pow(a, 0.58) * 3.0;
+    return Math.sign(residual) * Math.min(2.25, hz);
   }
 
-  function updatePeakText(peaks) {
-    const list = peaks || [];
-    peakCountEl.textContent = String(list.length);
-    const shown = list.slice(0, MAX_LIST_PEAKS);
-    if (!shown.length) {
-      peaksHzEl.textContent = '--';
-      peaksRatioEl.textContent = '--';
+  function visualSpinHz(detune){
+    if (!isFinite(detune)) return 0;
+    const a = Math.abs(detune);
+    if (a < 0.012) return 0;
+    return Math.sign(detune) * Math.min(1.85, Math.log1p(a) * 0.46);
+  }
+
+  function animationLoop(){
+    advanceMotion();
+    if (activeSource !== 'live' || motion.harmonic.ready || motion.pulse.ready) {
+      drawHarmonicCircle();
+      drawPulseCircle();
+    }
+    requestAnimationFrame(animationLoop);
+  }
+
+  function advanceMotion(){
+    const now = performance.now() / 1000;
+    if (motion.lastTs == null) motion.lastTs = now;
+    const dt = clamp(now - motion.lastTs, 0, 0.055);
+    motion.lastTs = now;
+    advanceOneMotion(motion.harmonic, now, dt);
+    advanceOneMotion(motion.pulse, now, dt);
+  }
+
+  function advanceOneMotion(m, now, dt){
+    if (!m.ready) return;
+    if (m.groups && m.groups.length) {
+      for (const g of m.groups) advanceChainGroup(g, now, dt);
+      const first = m.groups.find(g => g.endPoint);
+      m.current = first ? first.endPoint : null;
       return;
     }
-    peaksHzEl.textContent = shown.map(p => formatHz(p.freq)).join(' / ');
-    peaksRatioEl.textContent = shown.map(p => {
-      const r = p.ratio ? '×' + p.ratio.toFixed(2) : '×--';
-      const 位置 = Number.isFinite(p.octavePosition) ? p.octavePosition.toFixed(2) : '--';
-      return r + ' · 位置 ' + pos;
-    }).join(' / ');
-  }
-
-  function resizeCanvas(canvas, ctx) {
-    const dpr = Math.max(1, Math.min(3, window.devicePixelRatio || 1));
-    const rect = canvas.getBoundingClientRect();
-    const w = Math.max(10, Math.floor(rect.width));
-    const h = Math.max(10, Math.floor(rect.height));
-    if (canvas.width !== Math.floor(w * dpr) || canvas.height !== Math.floor(h * dpr)) {
-      canvas.width = Math.floor(w * dpr);
-      canvas.height = Math.floor(h * dpr);
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    if (m.tracks && m.tracks.length) {
+      for (const tr of m.tracks) advanceTrack(tr, now, dt);
+      m.current = m.tracks[0].current;
+      m.phase = m.tracks[0].phase;
+      return;
     }
-    return { w, h };
+    advanceTrack(m, now, dt);
   }
 
-  function formatHz(freq) {
-    if (!Number.isFinite(freq)) return '--';
-    return freq < 100 ? freq.toFixed(1) : String(Math.round(freq));
+  function advanceChainGroup(g, now, dt){
+    if (!g || !g.tracks || !g.tracks.length) return;
+    let x=0, y=0;
+    const pts=[];
+    for (const tr of g.tracks) {
+      tr.phase += Math.PI * 2 * (tr.spinHz || 0) * dt;
+      const breath = Math.sin(Math.PI * 2 * (tr.breathHz || 0.12) * now + (tr.breathPhase || 0));
+      const seg = clamp((tr.segment || 0.1) * (1 + (tr.breathDepth || 0) * breath), 0.012, 0.70);
+      const x0=x, y0=y;
+      x += Math.cos(tr.phase) * seg;
+      y += Math.sin(tr.phase) * seg;
+      pts.push({x0,y0,x,y,seg,a:tr.phase,alpha:tr.alpha||0.5,width:tr.width||1,colorPos:tr.colorPos||0,label:tr.label||''});
+    }
+    g.currentPoints = pts;
+    g.endPoint = {t:now,x,y};
+    if (!g.lastSample || now - g.lastSample > 0.045) {
+      g.chainTrail.push(g.endPoint);
+      g.lastSample = now;
+    }
+    while (g.chainTrail.length && now - g.chainTrail[0].t > motion.trailSeconds) g.chainTrail.shift();
+    if (g.chainTrail.length > 420) g.chainTrail.splice(0, g.chainTrail.length - 420);
   }
 
-  function clamp(x, a, b) { return Math.max(a, Math.min(b, x)); }
+  function advanceTrack(tr, now, dt){
+    tr.phase += Math.PI * 2 * (tr.spinHz || 0) * dt;
+    const breath = Math.sin(Math.PI * 2 * (tr.breathHz || 0.12) * now + (tr.breathPhase || 0));
+    const r = clamp((tr.radius || 0.55) + (tr.breathDepth || 0) * breath, 0.12, 0.97);
+    const pt = {t:now, a:tr.phase, r, alpha:tr.alpha || 0.7, width:tr.width || 1.4, colorPos:tr.colorPos || 0, label:tr.label || ''};
+    tr.current = pt;
+    if (!tr.lastSample || now - tr.lastSample > 0.035) {
+      tr.trail.push(pt);
+      tr.lastSample = now;
+    }
+    while (tr.trail.length && now - tr.trail[0].t > motion.trailSeconds) tr.trail.shift();
+    if (tr.trail.length > 520) tr.trail.splice(0, tr.trail.length - 520);
+  }
 
-  drawMeter();
-  drawLiveSpectrum();
-  drawFingerprint();
+  function formatSignedHz(x){
+    if (!isFinite(x)) return '--';
+    const s = x > 0 ? '+' : '';
+    const ax = Math.abs(x);
+    return s + (ax < 10 ? x.toFixed(2).replace(/0$/,'').replace(/\.$/,'') : x.toFixed(1)) + ' Hz';
+  }
+
+  function drawAll(){ drawMeter(); drawSpectrum(); drawFingerprint(); drawHarmonicCircle(); drawPulseCircle(); }
+
+  function prepareCanvas(canvas, context){
+    const r = canvas.getBoundingClientRect();
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    const w = Math.max(2, Math.floor(r.width*dpr)), h = Math.max(2, Math.floor(r.height*dpr));
+    if (canvas.width!==w || canvas.height!==h) { canvas.width=w; canvas.height=h; }
+    context.setTransform(dpr,0,0,dpr,0,0);
+    return {w:r.width,h:r.height};
+  }
+
+  function drawMeter(){
+    const {w,h}=prepareCanvas(els.meter,ctx.meter); const c=ctx.meter; c.clearRect(0,0,w,h);
+    const y=h*0.38, left=18, right=w-18;
+    c.strokeStyle='rgba(148,163,184,.25)'; c.lineWidth=2; c.beginPath(); c.moveTo(left,y); c.lineTo(right,y); c.stroke();
+    for(let t=-50;t<=50;t+=10){ const x=map(t,-50,50,left,right); c.strokeStyle=t===0?'rgba(255,255,255,.45)':'rgba(148,163,184,.22)'; c.lineWidth=t%50===0?2:1; c.beginPath(); c.moveTo(x,y-10); c.lineTo(x,y+10); c.stroke(); }
+    const x=map(clamp(meterNeedle,-50,50),-50,50,left,right);
+    const grad=c.createLinearGradient(x,y-26,x,y+27); grad.addColorStop(0,'#bef264'); grad.addColorStop(1,'#22c55e');
+    c.fillStyle=grad; c.beginPath(); c.moveTo(x,y-24); c.lineTo(x-9,y+13); c.lineTo(x+9,y+13); c.closePath(); c.fill();
+    c.shadowColor='rgba(52,211,153,.5)'; c.shadowBlur=16; c.fillRect(x-1.5,y+12,3,22); c.shadowBlur=0;
+  }
+
+  function drawSpectrum(){
+    const {w,h}=prepareCanvas(els.spectrum,ctx.spectrum); const c=ctx.spectrum;
+    c.fillStyle='#020617'; c.fillRect(0,0,w,h); drawGrid(c,w,h);
+    if(!freqData){ drawCenterText(c,w,h, activeSource==='file' ? '音檔已分析；下方為指紋模型' : '點一下啟動麥克風'); return; }
+    c.strokeStyle='rgba(52,211,153,.95)'; c.lineWidth=1.7; c.beginPath();
+    let started=false;
+    for(let x=0;x<w;x++){
+      const f=logLerp(CFG.minFreq,CFG.maxFreq,x/(w-1)); const db=interpDb(f); const y=map(db,CFG.dbMin,CFG.dbMax,h-8,8);
+      if(!started){ c.moveTo(x,y); started=true; } else c.lineTo(x,y);
+    }
+    c.stroke();
+    if(smoothedF0){ const x=freqToX(smoothedF0,w); c.strokeStyle='rgba(250,204,21,.75)'; c.lineWidth=1; c.beginPath(); c.moveTo(x,8); c.lineTo(x,h-8); c.stroke(); }
+  }
+
+  function drawFingerprint(){
+    const {w,h}=prepareCanvas(els.finger,ctx.finger); const c=ctx.finger; c.fillStyle='#020617'; c.fillRect(0,0,w,h); drawGrid(c,w,h);
+    if(!stats){ drawCenterText(c,w,h,'連續敲擊後，這裡會生成頌缽指紋'); return; }
+    // stability band P20-P90
+    c.beginPath();
+    for(let i=0;i<CFG.logBins;i++){ const x=i/(CFG.logBins-1)*w; const y=map(stats.p90[i],CFG.dbMin,CFG.dbMax,h-10,10); if(i===0)c.moveTo(x,y); else c.lineTo(x,y); }
+    for(let i=CFG.logBins-1;i>=0;i--){ const x=i/(CFG.logBins-1)*w; const y=map(stats.p20[i],CFG.dbMin,CFG.dbMax,h-10,10); c.lineTo(x,y); }
+    c.closePath(); c.fillStyle='rgba(56,189,248,.16)'; c.fill();
+    // median
+    c.strokeStyle='rgba(167,243,208,.98)'; c.lineWidth=2; c.beginPath();
+    for(let i=0;i<CFG.logBins;i++){ const x=i/(CFG.logBins-1)*w; const y=map(stats.med[i],CFG.dbMin,CFG.dbMax,h-10,10); if(i===0)c.moveTo(x,y); else c.lineTo(x,y); }
+    c.stroke();
+    // peak-pick curve: median plus transient allowance
+    if (stats.peakCurve){
+      c.strokeStyle='rgba(56,189,248,.38)'; c.lineWidth=1; c.beginPath();
+      for(let i=0;i<CFG.logBins;i++){ const x=i/(CFG.logBins-1)*w; const y=map(stats.peakCurve[i],CFG.dbMin,CFG.dbMax,h-10,10); if(i===0)c.moveTo(x,y); else c.lineTo(x,y); }
+      c.stroke();
+    }
+    if (stats.peakFloor != null){
+      const y=map(stats.peakFloor,CFG.dbMin,CFG.dbMax,h-10,10);
+      c.setLineDash([5,4]);
+      c.strokeStyle='rgba(250,204,21,.42)'; c.lineWidth=1;
+      c.beginPath(); c.moveTo(0,y); c.lineTo(w,y); c.stroke();
+      c.setLineDash([]);
+      c.fillStyle='rgba(250,204,21,.72)'; c.font='10px -apple-system,BlinkMacSystemFont,sans-serif';
+      c.fillText('peak floor', Math.max(4,w-70), Math.max(12,y-4));
+    }
+    // peaks
+    for(const p of peaks.slice(0, CFG.maxListPeaks)){
+      const x=freqToX(p.f,w); const y=map(p.db,CFG.dbMin,CFG.dbMax,h-10,10);
+      c.fillStyle=octaveColor(p.pos==null?0:p.pos); c.beginPath(); c.arc(x,y,3.2,0,Math.PI*2); c.fill();
+      c.fillStyle='rgba(248,250,252,.85)'; c.font='10px -apple-system,BlinkMacSystemFont,sans-serif'; c.fillText(Math.round(p.f), Math.min(w-34,x+5), Math.max(12,y-5));
+    }
+  }
+
+
+
+  function drawHarmonicCircle(){
+    const {w,h}=prepareCanvas(els.harmonicCircle,ctx.harmonic); const c=ctx.harmonic; c.fillStyle='#020617'; c.fillRect(0,0,w,h);
+    if(!motion.harmonic.ready){ drawCircleBase(c,w,h,'泛音鏈圓'); drawCenterText(c,w,h,'等待可追蹤泛音'); return; }
+    drawMotionCircle(c,w,h,motion.harmonic,'167,243,208');
+  }
+
+  function drawPulseCircle(){
+    const {w,h}=prepareCanvas(els.pulseCircle,ctx.pulse); const c=ctx.pulse; c.fillStyle='#020617'; c.fillRect(0,0,w,h);
+    if(!motion.pulse.ready){ drawCircleBase(c,w,h,'呼吸鏈圓'); drawCenterText(c,w,h,'等待拍頻資料'); return; }
+    drawMotionCircle(c,w,h,motion.pulse,'56,189,248');
+  }
+
+  function drawMotionCircle(c,w,h,m,rgb){
+    if (m.groups && m.groups.length) {
+      drawGroupGrid(c,w,h,m,rgb);
+      return;
+    }
+    const now = performance.now() / 1000;
+    const cx=w/2, cy=h/2, R=Math.min(w,h)*0.38;
+    drawCircleBase(c,w,h,'');
+    c.fillStyle='rgba(248,250,252,.88)'; c.beginPath(); c.arc(cx,cy,3.2,0,Math.PI*2); c.fill();
+
+    const trail = m.trail.filter(p => now - p.t <= motion.trailSeconds);
+    if (trail.length > 1) {
+      c.lineWidth = 1.8;
+      for (let i=1;i<trail.length;i++){
+        const p0=trail[i-1], p1=trail[i];
+        const age = now - p1.t;
+        const a = Math.pow(clamp(1 - age / motion.trailSeconds, 0, 1), 1.7) * 0.78;
+        c.strokeStyle = `rgba(${rgb},${a.toFixed(3)})`;
+        c.beginPath();
+        c.moveTo(cx + Math.cos(p0.a)*R*p0.r, cy + Math.sin(p0.a)*R*p0.r);
+        c.lineTo(cx + Math.cos(p1.a)*R*p1.r, cy + Math.sin(p1.a)*R*p1.r);
+        c.stroke();
+      }
+    }
+    const cur = m.current || trail[trail.length-1] || {a:m.phase,r:m.radius};
+    const x = cx + Math.cos(cur.a)*R*cur.r, y = cy + Math.sin(cur.a)*R*cur.r;
+    c.strokeStyle=`rgba(${rgb},.25)`; c.lineWidth=1; c.beginPath(); c.arc(cx,cy,R*cur.r,0,Math.PI*2); c.stroke();
+    c.fillStyle=`rgba(${rgb},.96)`; c.beginPath(); c.arc(x,y,5.8,0,Math.PI*2); c.fill();
+    c.strokeStyle=`rgba(${rgb},.45)`; c.lineWidth=1; c.beginPath(); c.moveTo(cx,cy); c.lineTo(x,y); c.stroke();
+    c.fillStyle='rgba(248,250,252,.78)'; c.font='10px -apple-system,BlinkMacSystemFont,sans-serif'; c.fillText(m.centerLabel,cx+6,cy+12);
+    c.fillStyle='rgba(248,250,252,.88)'; c.font='10px -apple-system,BlinkMacSystemFont,sans-serif'; c.fillText(m.label,9,h-22);
+    c.fillStyle='rgba(148,163,184,.82)'; c.fillText(m.sub,9,h-8);
+  }
+
+  function drawGroupGrid(c,w,h,m,rgb){
+    const now = performance.now() / 1000;
+    const pad = 8;
+    const footer = 27;
+    const cw = (w - pad * 3) / 2;
+    const ch = (h - footer - pad * 3) / 2;
+    const cells = [
+      {x:pad,y:pad,w:cw,h:ch},
+      {x:pad*2+cw,y:pad,w:cw,h:ch},
+      {x:pad,y:pad*2+ch,w:cw,h:ch},
+      {x:pad*2+cw,y:pad*2+ch,w:cw,h:ch}
+    ];
+    const groups = m.groups.slice(0,4);
+    for (let i=0;i<groups.length;i++) drawChainGroupCell(c,cells[i],groups[i],now,rgb);
+    c.fillStyle='rgba(248,250,252,.88)'; c.font='10px -apple-system,BlinkMacSystemFont,sans-serif'; c.fillText(m.label,9,h-15);
+    c.fillStyle='rgba(148,163,184,.82)'; c.fillText(m.sub,9,h-4);
+  }
+
+  function drawChainGroupCell(c,cell,g,now,rgb){
+    const cx=cell.x+cell.w/2, cy=cell.y+cell.h/2+3;
+    const R=Math.min(cell.w,cell.h)*0.36;
+    c.save();
+    c.strokeStyle='rgba(148,163,184,.12)'; c.lineWidth=1;
+    for(const rr of [0.5,1]){ c.beginPath(); c.arc(cx,cy,R*rr,0,Math.PI*2); c.stroke(); }
+    for(let i=0;i<8;i++){
+      const a=-Math.PI/2+i*Math.PI*2/8;
+      c.beginPath(); c.moveTo(cx+Math.cos(a)*R*.25,cy+Math.sin(a)*R*.25); c.lineTo(cx+Math.cos(a)*R,cy+Math.sin(a)*R); c.stroke();
+    }
+    c.fillStyle='rgba(248,250,252,.80)'; c.font='10px -apple-system,BlinkMacSystemFont,sans-serif'; c.textAlign='center'; c.fillText(g.label,cx,cell.y+12); c.textAlign='left';
+    c.fillStyle='rgba(248,250,252,.70)'; c.beginPath(); c.arc(cx,cy,2.4,0,Math.PI*2); c.fill();
+
+    const trl = (g.chainTrail || []).filter(p => now - p.t <= motion.trailSeconds);
+    if (trl.length > 1) {
+      for(let i=1;i<trl.length;i++){
+        const p0=trl[i-1], p1=trl[i];
+        const age=now-p1.t;
+        const a=Math.pow(clamp(1-age/motion.trailSeconds,0,1),1.8)*0.58;
+        c.strokeStyle=`rgba(${rgb},${a.toFixed(3)})`; c.lineWidth=1.05;
+        c.beginPath(); c.moveTo(cx+p0.x*R, cy+p0.y*R); c.lineTo(cx+p1.x*R, cy+p1.y*R); c.stroke();
+      }
+    }
+
+    const pts = g.currentPoints || [];
+    let lastx=cx, lasty=cy;
+    for(let i=0;i<pts.length;i++){
+      const p=pts[i];
+      const x0=cx+p.x0*R, y0=cy+p.y0*R, x=cx+p.x*R, y=cy+p.y*R;
+      const hue=360*fract(p.colorPos||0);
+      c.strokeStyle=`hsla(${hue},92%,64%,${Math.min(0.88,(p.alpha||0.55)+0.05).toFixed(3)})`;
+      c.lineWidth=Math.max(0.65,(p.width||1.1)*(1 - i*0.055));
+      c.beginPath(); c.moveTo(x0,y0); c.lineTo(x,y); c.stroke();
+      c.fillStyle=`hsla(${hue},92%,64%,${Math.min(0.95,(p.alpha||0.55)+0.15).toFixed(3)})`;
+      c.beginPath(); c.arc(x,y,Math.max(1.8,3.5-i*0.18),0,Math.PI*2); c.fill();
+      lastx=x; lasty=y;
+    }
+    if (pts.length) {
+      c.fillStyle='rgba(248,250,252,.92)'; c.beginPath(); c.arc(lastx,lasty,2.8,0,Math.PI*2); c.fill();
+    }
+    c.restore();
+  }
+
+  function drawOneTrack(c,cx,cy,R,tr,now,drawHead){
+    const hue = 360 * fract(tr.colorPos || 0);
+    const trail = (tr.trail || []).filter(p => now - p.t <= motion.trailSeconds);
+    if (!drawHead) {
+      if (trail.length > 1) {
+        for (let i=1;i<trail.length;i++){
+          const p0=trail[i-1], p1=trail[i];
+          const age = now - p1.t;
+          const a = Math.pow(clamp(1 - age / motion.trailSeconds, 0, 1), 1.75) * (tr.alpha || 0.55) * 0.78;
+          c.strokeStyle = `hsla(${hue}, 92%, 64%, ${a.toFixed(3)})`;
+          c.lineWidth = Math.max(0.55, (p1.width || tr.width || 1.2) * (0.55 + 0.45 * clamp(1 - age / motion.trailSeconds,0,1)));
+          c.beginPath();
+          c.moveTo(cx + Math.cos(p0.a)*R*p0.r, cy + Math.sin(p0.a)*R*p0.r);
+          c.lineTo(cx + Math.cos(p1.a)*R*p1.r, cy + Math.sin(p1.a)*R*p1.r);
+          c.stroke();
+        }
+      }
+      return;
+    }
+    const cur = tr.current || trail[trail.length-1];
+    if (!cur) return;
+    const x = cx + Math.cos(cur.a)*R*cur.r, y = cy + Math.sin(cur.a)*R*cur.r;
+    c.strokeStyle=`hsla(${hue}, 92%, 64%, ${Math.min(0.35, (tr.alpha||0.5)*0.38)})`; c.lineWidth=0.8; c.beginPath(); c.arc(cx,cy,R*cur.r,0,Math.PI*2); c.stroke();
+    c.fillStyle=`hsla(${hue}, 92%, 64%, ${Math.min(0.95, (tr.alpha||0.55)+0.18)})`; c.beginPath(); c.arc(x,y,3.2 + 2.6*Math.min(1, (tr.alpha||0.5)),0,Math.PI*2); c.fill();
+    c.strokeStyle=`hsla(${hue}, 92%, 64%, ${Math.min(0.42, (tr.alpha||0.5)*0.55)})`; c.lineWidth=0.8; c.beginPath(); c.moveTo(cx,cy); c.lineTo(x,y); c.stroke();
+    if ((tr.alpha||0) > 0.58) {
+      c.fillStyle='rgba(248,250,252,.82)'; c.font='10px -apple-system,BlinkMacSystemFont,sans-serif'; c.fillText(tr.label, Math.min(cx+R-24,x+5), Math.max(10,y-4));
+    }
+  }
+
+  function drawCircleBase(c,w,h,title){
+    const cx=w/2, cy=h/2, R=Math.min(w,h)*0.38;
+    c.strokeStyle='rgba(148,163,184,.14)'; c.lineWidth=1;
+    for(const rr of [0.35,0.65,1]){ c.beginPath(); c.arc(cx,cy,R*rr,0,Math.PI*2); c.stroke(); }
+    for(let i=0;i<12;i++){ const a=-Math.PI/2+i*Math.PI*2/12; c.beginPath(); c.moveTo(cx+Math.cos(a)*R*.25,cy+Math.sin(a)*R*.25); c.lineTo(cx+Math.cos(a)*R,cy+Math.sin(a)*R); c.stroke(); }
+    c.fillStyle='rgba(148,163,184,.58)'; c.font='10px -apple-system,BlinkMacSystemFont,sans-serif'; c.textAlign='center'; c.fillText('relative phase / trail',cx,cy-R-7); c.textAlign='left';
+  }
+
+  function drawGrid(c,w,h){
+    c.strokeStyle='rgba(148,163,184,.10)'; c.lineWidth=1;
+    for(let i=1;i<5;i++){ const y=i*h/5; c.beginPath(); c.moveTo(0,y); c.lineTo(w,y); c.stroke(); }
+    const marks=[50,100,200,500,1000,2000,5000];
+    c.fillStyle='rgba(148,163,184,.55)'; c.font='10px -apple-system,BlinkMacSystemFont,sans-serif';
+    for(const f of marks){ if(f<CFG.minFreq||f>CFG.maxFreq) continue; const x=freqToX(f,w); c.strokeStyle='rgba(148,163,184,.12)'; c.beginPath(); c.moveTo(x,0); c.lineTo(x,h); c.stroke(); c.fillText(String(f),x+3,h-5); }
+  }
+
+  function drawCenterText(c,w,h,text){ c.fillStyle='rgba(148,163,184,.72)'; c.font='12px -apple-system,BlinkMacSystemFont,sans-serif'; c.textAlign='center'; c.textBaseline='middle'; c.fillText(text,w/2,h/2); c.textAlign='left'; c.textBaseline='alphabetic'; }
+
+
+
+  async function handleFileInput(ev){
+    const file=ev.target.files && ev.target.files[0];
+    if(!file) return;
+    try{
+      els.fileStatus.textContent='讀取音檔中…只分析前 15 秒';
+      if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const buf = await file.arrayBuffer();
+      const audioBuffer = await audioCtx.decodeAudioData(buf.slice(0));
+      activeSource = 'file';
+      motion.source = 'file';
+      analyzeAudioBuffer(audioBuffer, file.name);
+      els.fileStatus.textContent=`已分析前 ${CFG.maxFileSeconds} 秒：${file.name} · 可用右側敏感度重抓峰`;
+      els.status.textContent='音檔分析完成 · 指紋模型運行中';
+      drawAll(); updateText();
+    }catch(e){
+      console.error(e); els.fileStatus.textContent='音檔分析失敗';
+    }
+  }
+
+  function analyzeAudioBuffer(buffer, name){
+    const sr=buffer.sampleRate, nChan=buffer.numberOfChannels, len=Math.min(buffer.length, Math.floor(sr*CFG.maxFileSeconds));
+    const mono=new Float32Array(len);
+    for(let ch=0; ch<nChan; ch++){
+      const d=buffer.getChannelData(ch);
+      for(let i=0;i<len;i++) mono[i]+=d[i]/nChan;
+    }
+    frames=[]; f0Samples=[]; stats=null; peaks=[]; harmonicStats=null; pulseStats=null; toneText='--'; sustain=null;
+    resetMotion();
+    const N=CFG.offlineFftSize, hop=Math.max(256, Math.floor(sr*CFG.offlineStep));
+    const window=new Float32Array(N); for(let i=0;i<N;i++) window[i]=0.5-0.5*Math.cos(2*Math.PI*i/(N-1));
+    const logBins=CFG.logBins;
+    for(let off=0; off+N<=len; off+=hop){
+      const seg=new Float32Array(N); let ss=0;
+      for(let i=0;i<N;i++){ const v=mono[off+i]*window[i]; seg[i]=v; ss += mono[off+i]*mono[off+i]; }
+      const mags=fftMag(seg);
+      const f0 = offlineEstimateF0FromMags(mags, sr, N);
+      if (f0) f0Samples.push(f0);
+      const arr=new Float32Array(logBins);
+      for(let b=0;b<logBins;b++){
+        const f=logLerp(CFG.minFreq,CFG.maxFreq,b/(logBins-1));
+        const idx=f/(sr/N); const i=Math.floor(idx), t=idx-i;
+        const m=(mags[i]||0)*(1-t)+(mags[i+1]||0)*t;
+        arr[b]=20*Math.log10(m+1e-10);
+      }
+      const rms=20*Math.log10(Math.sqrt(ss/N)+1e-9);
+      frames.push({t:off/sr, db:arr, rms});
+    }
+    // Normalize offline dB so peaks sit in the same visual range.
+    let max=-999;
+    for(const fr of frames) for(const v of fr.db) if(v>max) max=v;
+    const shift=CFG.dbMax-8-max;
+    for(const fr of frames){ for(let i=0;i<fr.db.length;i++) fr.db[i]+=shift; fr.rms+=shift; }
+    noiseDb=-86; rmsDb=frames.length?frames[frames.length-1].rms:-100; prevRms=rmsDb;
+    sustain={active:false,start:0,last:frames.length?frames[frames.length-1].t:0,lastValue:estimateOfflineSustain(frames)};
+    recomputeStats();
+    if(stats && stats.baseF0){ smoothedF0=stats.baseF0; liveF0=stats.baseF0; const ni=noteInfo(smoothedF0); els.freq.textContent=smoothedF0.toFixed(smoothedF0<100?1:0); els.note.textContent=ni.name; els.cents.textContent=formatCents(ni.cents); }
+  }
+
+
+  function offlineEstimateF0FromMags(mags, sr, n){
+    const localBinHz = sr / n;
+    const minBin = Math.max(1, Math.ceil(CFG.f0Min / localBinHz));
+    const maxBin = Math.min(mags.length-2, Math.floor(CFG.f0Max / localBinHz));
+    if (maxBin <= minBin) return null;
+    let maxDb = -999;
+    for (let i=minBin;i<=maxBin;i++) maxDb = Math.max(maxDb, 20*Math.log10((mags[i]||0)+1e-10));
+    const floor = maxDb - 30;
+    const candidates=[];
+    for (let i=minBin+2;i<maxBin-2;i++){
+      const v=20*Math.log10((mags[i]||0)+1e-10);
+      if (v < floor) continue;
+      const v1=20*Math.log10((mags[i-1]||0)+1e-10), v2=20*Math.log10((mags[i+1]||0)+1e-10);
+      const vL=20*Math.log10((mags[i-2]||0)+1e-10), vR=20*Math.log10((mags[i+2]||0)+1e-10);
+      if (v>v1 && v>v2 && v>=vL && v>=vR) candidates.push({i,db:v});
+    }
+    if (!candidates.length) return null;
+    candidates.sort((a,b)=>b.db-a.db);
+    const strongest = candidates[0].db;
+    const low = candidates.filter(p => p.db > strongest - 16).sort((a,b)=>a.i-b.i)[0] || candidates[0];
+    const i=low.i;
+    const a=20*Math.log10((mags[i-1]||0)+1e-10), b=20*Math.log10((mags[i]||0)+1e-10), c=20*Math.log10((mags[i+1]||0)+1e-10);
+    const d=(a-2*b+c);
+    const shift=d ? 0.5*(a-c)/d : 0;
+    return (i + clamp(shift,-.5,.5)) * localBinHz;
+  }
+
+  function estimateOfflineSustain(fr){
+    if(!fr.length) return null;
+    let max=-999; for(const x of fr) if(x.rms>max) max=x.rms;
+    const th=max-45; let first=null,last=null;
+    for(const x of fr){ if(x.rms>th){ if(first==null) first=x.t; last=x.t; } }
+    return first==null?null:Math.max(0,last-first);
+  }
+
+  function fftMag(real){
+    const n=real.length; const re=new Float32Array(real); const im=new Float32Array(n);
+    for(let i=1,j=0;i<n;i++){
+      let bit=n>>1; for(; j&bit; bit>>=1) j^=bit; j^=bit;
+      if(i<j){ const tr=re[i]; re[i]=re[j]; re[j]=tr; }
+    }
+    for(let len=2; len<=n; len<<=1){
+      const ang=-2*Math.PI/len, wlr=Math.cos(ang), wli=Math.sin(ang);
+      for(let i=0;i<n;i+=len){
+        let wr=1, wi=0;
+        for(let j=0;j<len/2;j++){
+          const uR=re[i+j], uI=im[i+j];
+          const vR=re[i+j+len/2]*wr-im[i+j+len/2]*wi;
+          const vI=re[i+j+len/2]*wi+im[i+j+len/2]*wr;
+          re[i+j]=uR+vR; im[i+j]=uI+vI;
+          re[i+j+len/2]=uR-vR; im[i+j+len/2]=uI-vI;
+          const nwr=wr*wlr-wi*wli; wi=wr*wli+wi*wlr; wr=nwr;
+        }
+      }
+    }
+    const out=new Float32Array(n/2);
+    for(let i=0;i<out.length;i++) out[i]=Math.sqrt(re[i]*re[i]+im[i]*im[i])/n;
+    return out;
+  }
+
+  function computeRmsDb(arr){ let s=0; for(const v of arr) s += v*v; return 20*Math.log10(Math.sqrt(s/arr.length)+1e-9); }
+  function detectClip(arr){ let n=0; for(const v of arr) if(Math.abs(v)>0.985) n++; return n>8; }
+  function interpDb(f){ const x=f/binHz; const i=Math.floor(x); const t=x-i; if(i<0) return -110; if(i>=freqData.length-1) return freqData[freqData.length-1]; return freqData[i]*(1-t)+freqData[i+1]*t; }
+  function parabolicFreq(i){ const a=freqData[i-1], b=freqData[i], c=freqData[i+1]; const d=(a-2*b+c); const shift=d ? 0.5*(a-c)/d : 0; return (i+clamp(shift,-.5,.5))*binHz; }
+  function lerp(a,b,t){ return a+(b-a)*t; }
+  function logLerp(a,b,t){ return a*Math.pow(b/a,t); }
+  function freqToX(f,w){ return clamp(Math.log(f/CFG.minFreq)/Math.log(CFG.maxFreq/CFG.minFreq),0,1)*w; }
+  function binToFreq(i){ return logLerp(CFG.minFreq, CFG.maxFreq, i/(CFG.logBins-1)); }
+  function map(v,a,b,c,d){ return c+(v-a)*(d-c)/(b-a); }
+  function clamp(v,a,b){ return Math.max(a,Math.min(b,v)); }
+  function fract(v){ return v-Math.floor(v); }
+  function percentileSorted(vals,p){ const idx=(vals.length-1)*p; const lo=Math.floor(idx), hi=Math.ceil(idx), t=idx-lo; return vals[lo]*(1-t)+vals[hi]*t; }
+  function robustMedian(vals){ if(!vals.length) return null; const a=vals.slice().sort((x,y)=>x-y); return percentileSorted(a,.5); }
+  function smoothArray(arr,r){ const out=new Float32Array(arr.length); for(let i=0;i<arr.length;i++){ let s=0,n=0; for(let j=-r;j<=r;j++){ const k=i+j; if(k>=0&&k<arr.length){s+=arr[k];n++;} } out[i]=s/n; } return out; }
+  function findBaseFromSpectrum(med){ let best=null; for(let i=0;i<med.length;i++){ const f=binToFreq(i); if(f>=CFG.f0Min&&f<=CFG.f0Max){ if(!best||med[i]>best.db) best={f,db:med[i]}; } } return best?best.f:null; }
+  function noteInfo(f){ const names=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B']; const midi=69+12*Math.log2(f/440); const n=Math.round(midi); const cents=(midi-n)*100; const name=names[((n%12)+12)%12]+(Math.floor(n/12)-1); return {name,cents}; }
+  function formatCents(c){ const v=Math.round(c); return (v>0?'+':'')+v+'¢'; }
+  function octaveColor(pos){ const hue=360*fract(pos||0); return `hsl(${hue}, 92%, 62%)`; }
+  function gcd(a,b){ a=Math.abs(a); b=Math.abs(b); while(b){ const t=b; b=a%b; a=t; } return a||1; }
+
+  updateText(); drawAll();
 })();
 </script>
 </body>
